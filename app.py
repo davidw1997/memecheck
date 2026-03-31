@@ -149,6 +149,120 @@ def premium_required():
     return True
 
 
+def stripe_bearer_headers():
+    return {
+        "Authorization": f"Bearer {app.config['STRIPE_SECRET_KEY']}"
+    }
+
+
+def stripe_form_headers():
+    return {
+        "Authorization": f"Bearer {app.config['STRIPE_SECRET_KEY']}",
+        "Content-Type": "application/x-www-form-urlencoded"
+    }
+
+
+def upgrade_user_to_pro(user, customer_id=None, subscription_id=None, status="active"):
+    if not user:
+        return
+    if customer_id:
+        user.stripe_customer_id = customer_id
+    if subscription_id:
+        user.stripe_subscription_id = subscription_id
+    user.plan = "pro"
+    user.subscription_status = status
+    db.session.commit()
+
+
+def downgrade_user_to_free(user, status="canceled"):
+    if not user:
+        return
+    user.plan = "free"
+    user.subscription_status = status
+    db.session.commit()
+
+
+def sync_user_plan_from_stripe(user):
+    """
+    Backup sync path:
+    1) use stored stripe_customer_id if present
+    2) otherwise search Stripe customers by email
+    3) list subscriptions for that customer
+    4) update local plan/status
+    """
+    if not user or not app.config["STRIPE_SECRET_KEY"]:
+        return
+
+    customer_id = user.stripe_customer_id
+
+    # Try finding the Stripe customer by email if we don't have one yet
+    if not customer_id and user.email:
+        try:
+            resp = requests.get(
+                "https://api.stripe.com/v1/customers/search",
+                headers=stripe_bearer_headers(),
+                params={
+                    "query": f"email:'{user.email}'",
+                    "limit": 1
+                },
+                timeout=30
+            )
+            if resp.status_code < 400:
+                data = resp.json()
+                customers = data.get("data", [])
+                if customers:
+                    customer_id = customers[0].get("id")
+                    user.stripe_customer_id = customer_id
+                    db.session.commit()
+        except Exception:
+            pass
+
+    if not customer_id:
+        return
+
+    # Get subscriptions for that customer
+    try:
+        resp = requests.get(
+            "https://api.stripe.com/v1/subscriptions",
+            headers=stripe_bearer_headers(),
+            params={
+                "customer": customer_id,
+                "status": "all",
+                "limit": 10
+            },
+            timeout=30
+        )
+        if resp.status_code >= 400:
+            return
+
+        data = resp.json()
+        subs = data.get("data", [])
+
+        active_like = None
+        for sub in subs:
+            if sub.get("status") in ("active", "trialing"):
+                active_like = sub
+                break
+
+        if active_like:
+            upgrade_user_to_pro(
+                user,
+                customer_id=customer_id,
+                subscription_id=active_like.get("id"),
+                status=active_like.get("status", "active")
+            )
+        else:
+            # if there are subscriptions but none are active/trialing, downgrade
+            if subs:
+                latest = subs[0]
+                user.stripe_subscription_id = latest.get("id")
+                user.subscription_status = latest.get("status", "inactive")
+                user.plan = "free"
+                db.session.commit()
+    except Exception:
+        pass
+
+
 def analyze_token(address: str, chain: str):
     dex_data = get_token_data(address)
 
@@ -293,13 +407,6 @@ def build_signals(
     return signals
 
 
-def stripe_headers():
-    return {
-        "Authorization": f"Bearer {app.config['STRIPE_SECRET_KEY']}",
-        "Content-Type": "application/x-www-form-urlencoded"
-    }
-
-
 def verify_stripe_signature(payload: bytes, sig_header: str, secret: str):
     if not sig_header or not secret:
         return False
@@ -325,44 +432,6 @@ def verify_stripe_signature(payload: bytes, sig_header: str, secret: str):
     ).hexdigest()
 
     return hmac.compare_digest(expected, signature)
-
-
-def upgrade_user_to_pro(user, customer_id=None, subscription_id=None, status="active"):
-    if not user:
-        return
-
-    if customer_id:
-        user.stripe_customer_id = customer_id
-    if subscription_id:
-        user.stripe_subscription_id = subscription_id
-
-    user.plan = "pro"
-    user.subscription_status = status
-    db.session.commit()
-
-
-def downgrade_user_to_free(user, status="canceled"):
-    if not user:
-        return
-
-    user.plan = "free"
-    user.subscription_status = status
-    db.session.commit()
-
-
-def retrieve_checkout_session(session_id: str):
-    response = requests.get(
-        f"https://api.stripe.com/v1/checkout/sessions/{session_id}",
-        headers={
-            "Authorization": f"Bearer {app.config['STRIPE_SECRET_KEY']}"
-        },
-        params={
-            "expand[]": ["subscription", "customer"]
-        },
-        timeout=45
-    )
-    response.raise_for_status()
-    return response.json()
 
 
 @app.route("/")
@@ -447,6 +516,11 @@ def logout():
 @login_required
 def profile():
     user = current_user()
+
+    # Stripe backup sync on page load
+    sync_user_plan_from_stripe(user)
+    user = current_user()
+
     reports = Report.query.filter_by(user_id=user.id).order_by(Report.created_at.desc()).limit(20).all()
     watchlist_count = WatchlistItem.query.filter_by(user_id=user.id).count()
     return render_template(
@@ -469,6 +543,15 @@ def pricing():
     )
 
 
+@app.route("/sync-subscription", methods=["POST"])
+@login_required
+def sync_subscription():
+    user = current_user()
+    sync_user_plan_from_stripe(user)
+    flash("Subscription sync attempted. Refreshing profile.")
+    return redirect(url_for("profile"))
+
+
 @app.route("/create-checkout-session", methods=["POST"])
 @login_required
 def create_checkout_session():
@@ -484,7 +567,7 @@ def create_checkout_session():
 
     data = {
         "mode": "subscription",
-        "success_url": f"{app.config['APP_BASE_URL']}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
+        "success_url": f"{app.config['APP_BASE_URL']}/billing/success",
         "cancel_url": f"{app.config['APP_BASE_URL']}/billing/cancel",
         "client_reference_id": str(user.id),
         "customer_email": user.email,
@@ -495,7 +578,7 @@ def create_checkout_session():
 
     response = requests.post(
         "https://api.stripe.com/v1/checkout/sessions",
-        headers=stripe_headers(),
+        headers=stripe_form_headers(),
         data=data,
         timeout=45
     )
@@ -518,6 +601,8 @@ def create_checkout_session():
 @login_required
 def create_billing_portal_session():
     user = current_user()
+    sync_user_plan_from_stripe(user)
+    user = current_user()
 
     if not is_pro(user):
         flash("You do not have an active Pro subscription.")
@@ -538,7 +623,7 @@ def create_billing_portal_session():
 
     response = requests.post(
         "https://api.stripe.com/v1/billing_portal/sessions",
-        headers=stripe_headers(),
+        headers=stripe_form_headers(),
         data=data,
         timeout=45
     )
@@ -561,38 +646,8 @@ def create_billing_portal_session():
 @login_required
 def billing_success():
     user = current_user()
-    session_id = request.args.get("session_id", "").strip()
-
-    if session_id and user and app.config["STRIPE_SECRET_KEY"]:
-        try:
-            checkout_session = retrieve_checkout_session(session_id)
-            customer_id = checkout_session.get("customer")
-            subscription = checkout_session.get("subscription")
-            subscription_id = None
-            subscription_status = "active"
-
-            if isinstance(subscription, dict):
-                subscription_id = subscription.get("id")
-                subscription_status = subscription.get("status", "active")
-            else:
-                subscription_id = subscription
-
-            payment_status = checkout_session.get("payment_status")
-            status = checkout_session.get("status")
-
-            if status == "complete" and (payment_status in ("paid", "no_payment_required", "unpaid", None)):
-                upgrade_user_to_pro(
-                    user,
-                    customer_id=customer_id,
-                    subscription_id=subscription_id,
-                    status=subscription_status
-                )
-                flash("Your Pro plan is active.")
-                return redirect(url_for("profile"))
-        except Exception:
-            pass
-
-    flash("Payment submitted. If your plan doesn’t update in a minute, refresh your profile.")
+    sync_user_plan_from_stripe(user)
+    flash("Payment submitted. Your subscription status has been rechecked.")
     return redirect(url_for("profile"))
 
 
@@ -648,7 +703,7 @@ def stripe_webhook():
                 user.plan = "free"
                 db.session.commit()
 
-    elif event_type in ("customer.subscription.deleted",):
+    elif event_type == "customer.subscription.deleted":
         customer_id = obj.get("customer")
         user = User.query.filter_by(stripe_customer_id=customer_id).first()
         if user:
