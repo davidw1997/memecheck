@@ -327,6 +327,44 @@ def verify_stripe_signature(payload: bytes, sig_header: str, secret: str):
     return hmac.compare_digest(expected, signature)
 
 
+def upgrade_user_to_pro(user, customer_id=None, subscription_id=None, status="active"):
+    if not user:
+        return
+
+    if customer_id:
+        user.stripe_customer_id = customer_id
+    if subscription_id:
+        user.stripe_subscription_id = subscription_id
+
+    user.plan = "pro"
+    user.subscription_status = status
+    db.session.commit()
+
+
+def downgrade_user_to_free(user, status="canceled"):
+    if not user:
+        return
+
+    user.plan = "free"
+    user.subscription_status = status
+    db.session.commit()
+
+
+def retrieve_checkout_session(session_id: str):
+    response = requests.get(
+        f"https://api.stripe.com/v1/checkout/sessions/{session_id}",
+        headers={
+            "Authorization": f"Bearer {app.config['STRIPE_SECRET_KEY']}"
+        },
+        params={
+            "expand[]": ["subscription", "customer"]
+        },
+        timeout=45
+    )
+    response.raise_for_status()
+    return response.json()
+
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -446,7 +484,7 @@ def create_checkout_session():
 
     data = {
         "mode": "subscription",
-        "success_url": f"{app.config['APP_BASE_URL']}/billing/success",
+        "success_url": f"{app.config['APP_BASE_URL']}/billing/success?session_id={{CHECKOUT_SESSION_ID}}",
         "cancel_url": f"{app.config['APP_BASE_URL']}/billing/cancel",
         "client_reference_id": str(user.id),
         "customer_email": user.email,
@@ -522,7 +560,39 @@ def create_billing_portal_session():
 @app.route("/billing/success")
 @login_required
 def billing_success():
-    flash("Payment submitted. Your subscription will activate after confirmation.")
+    user = current_user()
+    session_id = request.args.get("session_id", "").strip()
+
+    if session_id and user and app.config["STRIPE_SECRET_KEY"]:
+        try:
+            checkout_session = retrieve_checkout_session(session_id)
+            customer_id = checkout_session.get("customer")
+            subscription = checkout_session.get("subscription")
+            subscription_id = None
+            subscription_status = "active"
+
+            if isinstance(subscription, dict):
+                subscription_id = subscription.get("id")
+                subscription_status = subscription.get("status", "active")
+            else:
+                subscription_id = subscription
+
+            payment_status = checkout_session.get("payment_status")
+            status = checkout_session.get("status")
+
+            if status == "complete" and (payment_status in ("paid", "no_payment_required", "unpaid", None)):
+                upgrade_user_to_pro(
+                    user,
+                    customer_id=customer_id,
+                    subscription_id=subscription_id,
+                    status=subscription_status
+                )
+                flash("Your Pro plan is active.")
+                return redirect(url_for("profile"))
+        except Exception:
+            pass
+
+    flash("Payment submitted. If your plan doesn’t update in a minute, refresh your profile.")
     return redirect(url_for("profile"))
 
 
@@ -551,11 +621,12 @@ def stripe_webhook():
         if user_id:
             user = db.session.get(User, int(user_id))
             if user:
-                user.stripe_customer_id = obj.get("customer")
-                user.stripe_subscription_id = obj.get("subscription")
-                user.plan = "pro"
-                user.subscription_status = "active"
-                db.session.commit()
+                upgrade_user_to_pro(
+                    user,
+                    customer_id=obj.get("customer"),
+                    subscription_id=obj.get("subscription"),
+                    status="active"
+                )
 
     elif event_type in ("customer.subscription.created", "customer.subscription.updated"):
         customer_id = obj.get("customer")
@@ -564,18 +635,24 @@ def stripe_webhook():
 
         user = User.query.filter_by(stripe_customer_id=customer_id).first()
         if user:
-            user.stripe_subscription_id = subscription_id
-            user.subscription_status = status
-            user.plan = "pro" if status in ("active", "trialing") else "free"
-            db.session.commit()
+            if status in ("active", "trialing"):
+                upgrade_user_to_pro(
+                    user,
+                    customer_id=customer_id,
+                    subscription_id=subscription_id,
+                    status=status
+                )
+            else:
+                user.stripe_subscription_id = subscription_id
+                user.subscription_status = status
+                user.plan = "free"
+                db.session.commit()
 
     elif event_type in ("customer.subscription.deleted",):
         customer_id = obj.get("customer")
         user = User.query.filter_by(stripe_customer_id=customer_id).first()
         if user:
-            user.plan = "free"
-            user.subscription_status = "canceled"
-            db.session.commit()
+            downgrade_user_to_free(user, status="canceled")
 
     return {"received": True}, 200
 
