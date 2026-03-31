@@ -20,7 +20,7 @@ def generate_fallback_summary(risk: dict, recommendation: str, facts: dict) -> s
         f"{token_name}{symbol_text} shows {risk['level'].lower()} risk with a score of {risk['score']}. "
         f"Momentum score is {momentum_score}, phase is {phase}, and hype type is {hype_type}. "
         f"Liquidity is {liquidity}, 24h volume is {volume}, and token age is {age} minutes. "
-        f"Key factors include: {reasons}. Suggested action: {recommendation}."
+        f"Key factors include: {reasons}."
     )
 
 
@@ -60,6 +60,7 @@ You are writing a concise meme coin lifecycle report.
 Use only the facts provided.
 Do not promise profits.
 Do not invent missing data.
+Do not include any explicit trade recommendation words like ENTER, WAIT, or AVOID.
 Keep it concise and useful.
 Write:
 1. One short paragraph
@@ -84,7 +85,7 @@ Facts:
                 "content": [
                     {
                         "type": "input_text",
-                        "text": "You produce concise, evidence-based crypto lifecycle summaries."
+                        "text": "You produce concise, evidence-based crypto lifecycle summaries. Never reveal explicit recommendation labels like ENTER, WAIT, or AVOID."
                     }
                 ]
             },
