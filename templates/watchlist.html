@@ -1,16 +1,122 @@
 {% extends "base.html" %}
+
+{% block title %}Watchlist{% endblock %}
+
 {% block content %}
+<section class="section-head">
+    <div class="eyebrow">Watchlist</div>
+    <h1>Your tracked meme coins</h1>
+    <p class="section-subtext">Monitor current price, last known risk state, and rerun analysis instantly.</p>
+</section>
 
-<h1>Watchlist</h1>
+<section class="content-section">
+    {% for item in watchlist_items %}
+    <div class="report-box glass-card">
+        <div class="card-header-row">
+            <div>
+                <h3>{{ item.token_name or "Unknown" }}{% if item.symbol %} ({{ item.symbol }}){% endif %}</h3>
+                <p class="muted">{{ item.address }}</p>
+            </div>
+            <span class="pill">{{ item.chain }}</span>
+        </div>
 
-{% for item in watchlist_items %}
-<div class="report-box glass-card">
-    <h3>{{ item.token_name }}</h3>
-    <p>{{ item.address }}</p>
-    <p>Price: {{ item.current_price_usd }}</p>
+        <div class="metric-grid">
+            <div class="metric-item">
+                <span>Current Price</span>
+                <strong>{{ item.current_price_usd or "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Last Risk</span>
+                <strong>{{ item.last_risk_score if item.last_risk_score is not none else "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Last Momentum</span>
+                <strong>{{ item.last_momentum_score if item.last_momentum_score is not none else "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Last Phase</span>
+                <strong>{{ item.last_phase or "N/A" }}</strong>
+            </div>
+        </div>
 
-    <a href="/reanalyze/{{ item.id }}">Re-analyze</a>
-</div>
-{% endfor %}
+        {% if show_premium %}
+        <div class="metric-grid">
+            <div class="metric-item">
+                <span>Last Recommendation</span>
+                <strong>{{ item.last_recommendation or "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Last Hype Type</span>
+                <strong>{{ item.last_hype_type or "N/A" }}</strong>
+            </div>
+        </div>
+        {% else %}
+        <div class="locked-strip">
+            🔒 Upgrade to Pro to unlock Recommendation and Hype Type
+        </div>
+        {% endif %}
 
+        <div class="action-row">
+            <a href="{{ url_for('reanalyze', item_id=item.id) }}" class="btn-primary inline-btn">Re-Analyze</a>
+
+            <form action="{{ url_for('delete_watchlist', item_id=item.id) }}" method="POST">
+                <button type="submit" class="btn-danger">Remove</button>
+            </form>
+        </div>
+
+        <small class="muted">{{ item.created_at }}</small>
+    </div>
+    {% else %}
+    <div class="empty-state glass-card">
+        <p>No watchlist items yet.</p>
+    </div>
+    {% endfor %}
+</section>
+
+<section class="content-section">
+    <div class="section-title-row">
+        <h2>Recent Reports</h2>
+    </div>
+
+    {% for r in reports %}
+    <div class="report-box glass-card">
+        <div class="card-header-row">
+            <div>
+                <h3>{{ r.token_name }}{% if r.symbol %} ({{ r.symbol }}){% endif %}</h3>
+                <p class="muted">{{ r.address }}</p>
+            </div>
+            <span class="pill">{{ r.chain }}</span>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-item">
+                <span>Price</span>
+                <strong>{{ r.price_usd or "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Risk</span>
+                <strong>{{ r.risk_score }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Momentum</span>
+                <strong>{{ r.momentum_score or "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Phase</span>
+                <strong>{{ r.phase or "N/A" }}</strong>
+            </div>
+        </div>
+
+        {% if show_premium %}
+            <p><strong>Recommendation:</strong> {{ r.recommendation }}</p>
+            <p><strong>Hype Type:</strong> {{ r.hype_type or "N/A" }}</p>
+        {% else %}
+            <div class="locked-strip">🔒 Pro only fields hidden</div>
+        {% endif %}
+
+        <p class="summary-text">{{ r.summary }}</p>
+        <small class="muted">{{ r.created_at }}</small>
+    </div>
+    {% endfor %}
+</section>
 {% endblock %}

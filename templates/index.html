@@ -1,21 +1,76 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block title %}MemeCheck - Home{% endblock %}
+
+{% block content %}
 <section class="hero-premium">
-    <div>
+    <div class="hero-copy">
         <div class="eyebrow">AI-powered meme coin analysis</div>
         <h1>Catch pumps early. Avoid rugs faster.</h1>
+        <p class="hero-text">
+            MemeCheck helps traders analyze early-stage meme coins with lifecycle signals,
+            hype detection, risk scoring, watchlists, and premium intelligence.
+        </p>
 
-        <form action="/analyze" method="POST" class="premium-form">
-            <textarea name="address" placeholder="Paste token contract..." required></textarea>
-            <button type="submit">Analyze Token</button>
+        {% if current_user %}
+        <form action="{{ url_for('analyze') }}" method="POST" class="premium-form">
+            <label for="address">Paste token contract</label>
+            <textarea
+                id="address"
+                name="address"
+                rows="4"
+                placeholder="Paste Solana or Base contract address here..."
+                required
+            ></textarea>
+
+            <div class="hero-actions">
+                <button type="submit" class="btn-primary">Analyze Token</button>
+                <a href="{{ url_for('pricing') }}" class="btn-secondary">View Plans</a>
+            </div>
         </form>
+        {% else %}
+        <div class="hero-actions">
+            <a href="{{ url_for('signup') }}" class="btn-primary">Create Account</a>
+            <a href="{{ url_for('login') }}" class="btn-secondary">Login</a>
+        </div>
+        {% endif %}
     </div>
 
-    <div class="glass-card">
-        <h3>Live Intelligence</h3>
-        <p>Risk scoring, hype detection, and trading signals in seconds.</p>
+    <div class="glass-card hero-panel">
+        <div class="panel-top">
+            <span class="dot red"></span>
+            <span class="dot yellow"></span>
+            <span class="dot green"></span>
+        </div>
+
+        <div class="mock-stat-grid">
+            <div class="mock-stat">
+                <span class="mock-label">Risk Score</span>
+                <strong>28</strong>
+                <small>Low–Moderate</small>
+            </div>
+            <div class="mock-stat">
+                <span class="mock-label">Momentum</span>
+                <strong>74</strong>
+                <small>High</small>
+            </div>
+            <div class="mock-stat">
+                <span class="mock-label">Phase</span>
+                <strong>Viral Growth</strong>
+                <small>Expansion detected</small>
+            </div>
+            <div class="mock-stat">
+                <span class="mock-label">Hype Type</span>
+                <strong>Likely Organic</strong>
+                <small>Higher quality flow</small>
+            </div>
+        </div>
+
+        <div class="mock-signals">
+            <div class="signal-row good">Momentum increased</div>
+            <div class="signal-row warn">Liquidity still fragile</div>
+            <div class="signal-row good">Recommendation: ENTER</div>
+        </div>
     </div>
 </section>
-
 {% endblock %}

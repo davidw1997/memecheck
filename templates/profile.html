@@ -1,26 +1,105 @@
 {% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
 {% block content %}
+<section class="dashboard-hero glass-card">
+    <div>
+        <div class="eyebrow">Account overview</div>
+        <h1>{{ user.username }}’s Profile</h1>
+        <p class="section-subtext">{{ user.email }}</p>
+    </div>
 
-<div class="dashboard-hero glass-card">
-    <h1>{{ user.username }}</h1>
-    <p>{{ user.email }}</p>
+    <div class="profile-actions">
+        <form method="POST" action="{{ url_for('sync_subscription') }}">
+            <button type="submit" class="btn-secondary">Sync Subscription</button>
+        </form>
 
-    <p><strong>Plan:</strong> {{ "Pro" if is_pro_user else "Free" }}</p>
+        {% if is_pro_user %}
+        <form method="POST" action="{{ url_for('create_billing_portal_session') }}">
+            <button type="submit" class="btn-primary">Manage / Cancel</button>
+        </form>
+        {% endif %}
+    </div>
+</section>
 
-    <form method="POST" action="/sync-subscription">
-        <button class="btn-secondary">Sync Subscription</button>
-    </form>
-</div>
+<section class="stats-grid">
+    <div class="stat-card glass-card">
+        <span class="stat-label">Plan</span>
+        <strong>{{ "Pro" if is_pro_user else "Free" }}</strong>
+    </div>
 
-<h2>Recent Reports</h2>
+    <div class="stat-card glass-card">
+        <span class="stat-label">Watchlist Items</span>
+        <strong>{{ watchlist_count }}</strong>
+    </div>
 
-{% for r in reports %}
-<div class="report-box glass-card">
-    <h3>{{ r.token_name }} ({{ r.symbol }})</h3>
-    <p>{{ r.address }}</p>
-    <p>Risk: {{ r.risk_score }}</p>
-    <p>Momentum: {{ r.momentum_score }}</p>
-</div>
-{% endfor %}
+    {% if not is_pro_user %}
+    <div class="stat-card glass-card">
+        <span class="stat-label">Free Analyses Left</span>
+        <strong>{{ free_remaining }}</strong>
+    </div>
+    {% endif %}
+</section>
 
+<section class="content-section">
+    <div class="section-title-row">
+        <h2>Recent Analyzations</h2>
+    </div>
+
+    {% for r in reports %}
+    <div class="report-box glass-card">
+        <div class="card-header-row">
+            <div>
+                <h3>{{ r.token_name }}{% if r.symbol %} ({{ r.symbol }}){% endif %}</h3>
+                <p class="muted">{{ r.address }}</p>
+            </div>
+            <span class="pill">{{ r.chain }}</span>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-item">
+                <span>Price</span>
+                <strong>{{ r.price_usd or "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Risk</span>
+                <strong>{{ r.risk_score }} ({{ r.risk_level }})</strong>
+            </div>
+            <div class="metric-item">
+                <span>Momentum</span>
+                <strong>{{ r.momentum_score or "N/A" }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Phase</span>
+                <strong>{{ r.phase or "N/A" }}</strong>
+            </div>
+        </div>
+
+        {% if is_pro_user %}
+        <div class="metric-grid">
+            <div class="metric-item">
+                <span>Recommendation</span>
+                <strong>{{ r.recommendation }}</strong>
+            </div>
+            <div class="metric-item">
+                <span>Hype Type</span>
+                <strong>{{ r.hype_type or "N/A" }}</strong>
+            </div>
+        </div>
+        {% else %}
+        <div class="locked-strip">
+            🔒 Upgrade to Pro to unlock Recommendation and Hype Type
+        </div>
+        {% endif %}
+
+        <p class="summary-text">{{ r.summary }}</p>
+        <small class="muted">{{ r.created_at }}</small>
+    </div>
+    {% else %}
+    <div class="empty-state glass-card">
+        <p>No analyzations yet.</p>
+    </div>
+    {% endfor %}
+</section>
 {% endblock %}

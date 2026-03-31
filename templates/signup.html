@@ -1,18 +1,33 @@
 {% extends "base.html" %}
-{% block content %}
 
-<div class="auth-shell">
+{% block title %}Sign Up{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
     <div class="auth-card glass-card">
-        <h2>Create Account</h2>
+        <div class="eyebrow">Start free</div>
+        <h2>Create your account</h2>
+        <p class="section-subtext">Track meme coins, build watchlists, and unlock premium signals.</p>
 
         <form method="POST" class="premium-form">
+            <label>Username</label>
             <input type="text" name="username" placeholder="Username" required>
-            <input type="email" name="email" placeholder="Email" required>
-            <input type="password" name="password" placeholder="Password" required>
-            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-            <button type="submit">Sign Up</button>
-        </form>
-    </div>
-</div>
 
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Email" required>
+
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Password" required>
+
+            <label>Confirm Password</label>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+
+            <button type="submit" class="btn-primary full-width">Create Account</button>
+        </form>
+
+        <p class="auth-link">
+            Already have an account? <a href="{{ url_for('login') }}">Login</a>
+        </p>
+    </div>
+</section>
 {% endblock %}

@@ -3,175 +3,396 @@
 {% block title %}Report{% endblock %}
 
 {% block content %}
-<section class="section-head">
+<section class="tv-report-shell">
     {% if error %}
-        <div class="glass-card">
-            <h2>Error</h2>
-            <p>{{ error }}</p>
-            <a href="{{ url_for('home') }}" class="btn-secondary inline-btn">Go back</a>
+    <div class="tv-panel tv-error-panel">
+        <div class="tv-panel-header">
+            <div>
+                <div class="tv-eyebrow">Analysis Error</div>
+                <h1>Unable to load report</h1>
+            </div>
         </div>
+
+        <div class="tv-alert tv-alert-danger">
+            <span>{{ error }}</span>
+        </div>
+
+        <div class="tv-actions-row">
+            <a href="{{ url_for('home') }}" class="tv-btn tv-btn-secondary">Back Home</a>
+        </div>
+    </div>
     {% else %}
-        <div class="eyebrow">Analysis report</div>
-        <h1>Token Snapshot</h1>
-        <p class="section-subtext">
-            Fast intelligence for early-stage meme coin decision-making.
-        </p>
-    {% endif %}
-</section>
 
-{% if not error %}
-<div class="report-layout">
-    <div class="report-main">
-        <div class="glass-card hero-report-card">
-            <div class="card-header-row">
+    <section class="tv-topbar">
+        <div class="tv-token-head">
+            <div class="tv-token-main">
+                <div class="tv-token-badge">MC</div>
+
                 <div>
-                    <h2>{{ token_name }}{% if symbol %} ({{ symbol }}){% endif %}</h2>
-                    <p class="muted">{{ address }}</p>
-                </div>
-                <span class="pill">{{ chain }}</span>
-            </div>
-
-            <div class="metric-grid">
-                <div class="metric-item">
-                    <span>Risk</span>
-                    <strong>{{ risk.score }} ({{ risk.level }})</strong>
-                </div>
-                <div class="metric-item">
-                    <span>Momentum</span>
-                    <strong>{{ momentum_score }}</strong>
-                </div>
-                <div class="metric-item">
-                    <span>Phase</span>
-                    <strong>{{ phase }}</strong>
-                </div>
-                <div class="metric-item">
-                    <span>Price</span>
-                    <strong>{{ price_usd or "N/A" }}</strong>
+                    <div class="tv-eyebrow">Token Intelligence Report</div>
+                    <h1 class="tv-token-title">
+                        {{ token_name }}{% if symbol %} <span>({{ symbol }})</span>{% endif %}
+                    </h1>
+                    <p class="tv-token-address">{{ address }}</p>
                 </div>
             </div>
 
-            {% if show_premium %}
-            <div class="metric-grid">
-                <div class="metric-item premium-highlight">
-                    <span>Recommendation</span>
-                    <strong>{{ recommendation }}</strong>
+            <div class="tv-topbar-actions">
+                <span class="tv-chain-pill">{{ chain|upper }}</span>
+                <a href="{{ url_for('home') }}" class="tv-btn tv-btn-secondary">New Scan</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="tv-grid-main">
+        <div class="tv-main-left">
+
+            <div class="tv-panel tv-hero-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">Market Snapshot</div>
+                        <h2>Decision Engine</h2>
+                    </div>
+
+                    <div class="tv-price-box">
+                        <span>Current Price</span>
+                        <strong>{{ price_usd or "N/A" }}</strong>
+                    </div>
                 </div>
-                <div class="metric-item premium-highlight">
-                    <span>Hype Type</span>
-                    <strong>{{ hype_type }}</strong>
+
+                <div class="tv-stat-grid tv-stat-grid-4">
+                    <div class="tv-stat-card">
+                        <span class="tv-stat-label">Risk Score</span>
+                        <strong>{{ risk.score }}</strong>
+                        <small>{{ risk.level }}</small>
+                    </div>
+
+                    <div class="tv-stat-card">
+                        <span class="tv-stat-label">Momentum</span>
+                        <strong>{{ momentum_score }}</strong>
+                        <small>Velocity Index</small>
+                    </div>
+
+                    <div class="tv-stat-card">
+                        <span class="tv-stat-label">Phase</span>
+                        <strong>{{ phase }}</strong>
+                        <small>Lifecycle State</small>
+                    </div>
+
+                    <div class="tv-stat-card">
+                        <span class="tv-stat-label">Chain</span>
+                        <strong>{{ chain|capitalize }}</strong>
+                        <small>Detected Network</small>
+                    </div>
+                </div>
+
+                {% if show_premium %}
+                <div class="tv-premium-grid">
+                    <div class="tv-signal-box tv-positive-box">
+                        <span class="tv-stat-label">Recommendation</span>
+                        <strong>{{ recommendation }}</strong>
+                    </div>
+
+                    <div class="tv-signal-box tv-neutral-box">
+                        <span class="tv-stat-label">Hype Type</span>
+                        <strong>{{ hype_type }}</strong>
+                    </div>
+                </div>
+                {% else %}
+                <div class="tv-lock-banner">
+                    <div>
+                        <strong>Premium data locked</strong>
+                        <p>Unlock recommendation, hype type, RugCheck, and advanced signal tracking.</p>
+                    </div>
+                    <a href="{{ url_for('pricing') }}" class="tv-btn tv-btn-primary">Unlock Pro</a>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="tv-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">Live Chart</div>
+                        <h2>TradingView-Style Chart Panel</h2>
+                    </div>
+                </div>
+
+                <div class="tv-chart-shell">
+                    <div class="tv-chart-toolbar">
+                        <span class="tv-chart-pill active">1m</span>
+                        <span class="tv-chart-pill">5m</span>
+                        <span class="tv-chart-pill">15m</span>
+                        <span class="tv-chart-pill">1H</span>
+                        <span class="tv-chart-pill">4H</span>
+                        <span class="tv-chart-pill">1D</span>
+                    </div>
+
+                    <div id="tv-widget-container" class="tv-widget-container" data-symbol="{{ tradingview_symbol if tradingview_symbol else '' }}">
+                        <div class="tv-chart-fallback">
+                            <strong>Live chart ready</strong>
+                            <p>
+                                Most meme coin contract addresses do not have native TradingView symbols.
+                                Use the live market link below to open the token chart directly.
+                            </p>
+
+                            {% if dex_data.success and dex_data.url %}
+                            <a href="{{ dex_data.url }}" target="_blank" class="tv-btn tv-btn-primary">
+                                Open Live Token Chart
+                            </a>
+                            {% else %}
+                            <span class="muted">No live chart source available for this token.</span>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {% else %}
-            <div class="locked-strip">
-                🔒 Pro unlocks Recommendation, Hype Type, RugCheck, and Signals
+
+            <div class="tv-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">AI Readout</div>
+                        <h2>Summary</h2>
+                    </div>
+                </div>
+
+                <div class="tv-summary-card">
+                    <p>{{ summary }}</p>
+                </div>
+            </div>
+
+            {% if signals and show_premium %}
+            <div class="tv-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">Transition Engine</div>
+                        <h2>Signal Changes</h2>
+                    </div>
+                </div>
+
+                <div class="tv-signal-list">
+                    {% for signal in signals %}
+                    <div class="tv-signal-row">
+                        <div class="tv-signal-dot"></div>
+                        <span>{{ signal }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
             </div>
             {% endif %}
 
-            <div class="summary-panel">
-                <h3>AI Summary</h3>
-                <p class="summary-text">{{ summary }}</p>
+            <div class="tv-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">Exchange Feed</div>
+                        <h2>DEX Screener Data</h2>
+                    </div>
+                </div>
+
+                {% if dex_data.success %}
+                <div class="tv-table-grid">
+                    <div class="tv-data-row">
+                        <span>Name</span>
+                        <strong>{{ dex_data.token_name }}</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>Symbol</span>
+                        <strong>{{ dex_data.symbol }}</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>DEX</span>
+                        <strong>{{ dex_data.dex_id }}</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>Price USD</span>
+                        <strong>{{ dex_data.price_usd }}</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>Liquidity USD</span>
+                        <strong>{{ dex_data.liquidity_usd }}</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>24h Volume</span>
+                        <strong>{{ dex_data.volume_24h }}</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>24h Price Change</span>
+                        <strong>{{ dex_data.price_change_24h }}%</strong>
+                    </div>
+                    <div class="tv-data-row">
+                        <span>Token Age</span>
+                        <strong>{{ dex_data.age_minutes }} min</strong>
+                    </div>
+                </div>
+
+                {% if dex_data.url %}
+                <div class="tv-actions-row">
+                    <a href="{{ dex_data.url }}" target="_blank" class="tv-btn tv-btn-secondary">
+                        View on DEX Screener
+                    </a>
+                </div>
+                {% endif %}
+
+                {% else %}
+                <div class="tv-alert tv-alert-warning">
+                    <span>{{ dex_data.error }}</span>
+                </div>
+                {% endif %}
             </div>
-        </div>
 
-        {% if signals and show_premium %}
-        <div class="glass-card report-box">
-            <h3>Signals</h3>
-            <ul class="signal-list">
-                {% for signal in signals %}
-                    <li>{{ signal }}</li>
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
+            <div class="tv-lower-grid">
+                <div class="tv-panel">
+                    <div class="tv-panel-header">
+                        <div>
+                            <div class="tv-eyebrow">Supplemental Feed</div>
+                            <h2>Birdeye</h2>
+                        </div>
+                    </div>
 
-        <div class="glass-card report-box">
-            <h3>Market Data</h3>
-
-            <div class="report-grid">
-                <div class="report-box inner-card">
-                    <h4>DEX Screener</h4>
-                    {% if dex_data.success %}
-                        <p><strong>Name:</strong> {{ dex_data.token_name }}</p>
-                        <p><strong>Symbol:</strong> {{ dex_data.symbol }}</p>
-                        <p><strong>DEX:</strong> {{ dex_data.dex_id }}</p>
-                        <p><strong>Price USD:</strong> {{ dex_data.price_usd }}</p>
-                        <p><strong>Liquidity USD:</strong> {{ dex_data.liquidity_usd }}</p>
-                        <p><strong>24h Volume:</strong> {{ dex_data.volume_24h }}</p>
-                        <p><strong>24h Price Change:</strong> {{ dex_data.price_change_24h }}%</p>
-                        <p><strong>Token Age:</strong> {{ dex_data.age_minutes }} min</p>
-                        {% if dex_data.url %}
-                            <p>
-                                <a href="{{ dex_data.url }}" target="_blank">View on DEX Screener</a>
-                            </p>
-                        {% endif %}
-                    {% else %}
-                        <p>{{ dex_data.error }}</p>
-                    {% endif %}
-                </div>
-
-                <div class="report-box inner-card">
-                    <h4>Birdeye</h4>
                     {% if birdeye_data.success %}
-                        <p><strong>Holder Count:</strong> {{ birdeye_data.holder_count }}</p>
-                        <p><strong>Price:</strong> {{ birdeye_data.price }}</p>
-                        <p><strong>Liquidity:</strong> {{ birdeye_data.liquidity }}</p>
-                        <p><strong>Market Cap:</strong> {{ birdeye_data.mc }}</p>
-                        <p><strong>24h Volume:</strong> {{ birdeye_data.v24h }}</p>
+                    <div class="tv-table-grid">
+                        <div class="tv-data-row">
+                            <span>Holder Count</span>
+                            <strong>{{ birdeye_data.holder_count }}</strong>
+                        </div>
+                        <div class="tv-data-row">
+                            <span>Price</span>
+                            <strong>{{ birdeye_data.price }}</strong>
+                        </div>
+                        <div class="tv-data-row">
+                            <span>Liquidity</span>
+                            <strong>{{ birdeye_data.liquidity }}</strong>
+                        </div>
+                        <div class="tv-data-row">
+                            <span>Market Cap</span>
+                            <strong>{{ birdeye_data.mc }}</strong>
+                        </div>
+                        <div class="tv-data-row">
+                            <span>24h Volume</span>
+                            <strong>{{ birdeye_data.v24h }}</strong>
+                        </div>
+                    </div>
                     {% else %}
-                        <p>Birdeye data not available.</p>
+                    <div class="tv-alert tv-alert-muted">
+                        <span>Birdeye data not available.</span>
+                    </div>
                     {% endif %}
                 </div>
 
-                <div class="report-box inner-card">
-                    <h4>RugCheck</h4>
+                <div class="tv-panel">
+                    <div class="tv-panel-header">
+                        <div>
+                            <div class="tv-eyebrow">Contract Risk Feed</div>
+                            <h2>RugCheck</h2>
+                        </div>
+                    </div>
+
                     {% if show_premium %}
                         {% if rug_data and rug_data.success %}
-                            <p><strong>Score:</strong> {{ rug_data.score }}</p>
+                        <div class="tv-table-grid">
+                            <div class="tv-data-row">
+                                <span>Score</span>
+                                <strong>{{ rug_data.score }}</strong>
+                            </div>
+                        </div>
 
-                            {% if rug_data.warnings and rug_data.warnings|length > 0 %}
-                            <ul class="signal-list compact">
-                                {% for w in rug_data.warnings %}
-                                    <li>{{ w }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% else %}
-                                <p>No RugCheck warnings found.</p>
-                            {% endif %}
+                        {% if rug_data.warnings and rug_data.warnings|length > 0 %}
+                        <div class="tv-warning-stack">
+                            {% for w in rug_data.warnings %}
+                            <div class="tv-warning-pill">
+                                {{ w }}
+                            </div>
+                            {% endfor %}
+                        </div>
                         {% else %}
-                            <p>No RugCheck data available.</p>
+                        <div class="tv-alert tv-alert-success">
+                            <span>No RugCheck warnings found.</span>
+                        </div>
+                        {% endif %}
+                        {% else %}
+                        <div class="tv-alert tv-alert-muted">
+                            <span>No RugCheck data available.</span>
+                        </div>
                         {% endif %}
                     {% else %}
-                        <p>🔒 Pro only</p>
+                    <div class="tv-lock-panel">
+                        <strong>Pro only</strong>
+                        <p>Upgrade to access RugCheck contract warnings and risk context.</p>
+                        <a href="{{ url_for('pricing') }}" class="tv-btn tv-btn-primary">Upgrade</a>
+                    </div>
                     {% endif %}
                 </div>
             </div>
         </div>
-    </div>
 
-    <aside class="report-side">
-        <div class="glass-card sticky-card">
-            <h3>Save to Watchlist</h3>
+        <aside class="tv-main-right">
+            <div class="tv-panel tv-side-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">Action Center</div>
+                        <h2>Watchlist</h2>
+                    </div>
+                </div>
 
-            <form action="{{ url_for('add_to_watchlist') }}" method="POST" class="premium-form">
-                <input type="hidden" name="address" value="{{ address }}">
-                <input type="hidden" name="chain" value="{{ chain }}">
-                <input type="hidden" name="token_name" value="{{ token_name }}">
-                <input type="hidden" name="symbol" value="{{ symbol }}">
-                <input type="hidden" name="price_usd" value="{{ price_usd if price_usd is not none else '' }}">
-                <input type="hidden" name="risk_score" value="{{ risk.score }}">
-                <input type="hidden" name="recommendation" value="{{ recommendation if recommendation else '' }}">
-                <input type="hidden" name="momentum_score" value="{{ momentum_score }}">
-                <input type="hidden" name="phase" value="{{ phase }}">
-                <input type="hidden" name="hype_type" value="{{ hype_type if hype_type else '' }}">
+                <form action="{{ url_for('add_to_watchlist') }}" method="POST" class="premium-form">
+                    <input type="hidden" name="address" value="{{ address }}">
+                    <input type="hidden" name="chain" value="{{ chain }}">
+                    <input type="hidden" name="token_name" value="{{ token_name }}">
+                    <input type="hidden" name="symbol" value="{{ symbol }}">
+                    <input type="hidden" name="price_usd" value="{{ price_usd if price_usd is not none else '' }}">
+                    <input type="hidden" name="risk_score" value="{{ risk.score }}">
+                    <input type="hidden" name="recommendation" value="{{ recommendation if recommendation else '' }}">
+                    <input type="hidden" name="momentum_score" value="{{ momentum_score }}">
+                    <input type="hidden" name="phase" value="{{ phase }}">
+                    <input type="hidden" name="hype_type" value="{{ hype_type if hype_type else '' }}">
 
-                <button type="submit" class="btn-primary full-width">Save Token</button>
-            </form>
+                    <button type="submit" class="tv-btn tv-btn-primary full-width">Save to Watchlist</button>
+                </form>
 
-            <a href="{{ url_for('home') }}" class="btn-secondary full-width btn-link-block" style="margin-top: 12px;">
-                Analyze Another
-            </a>
-        </div>
-    </aside>
-</div>
-{% endif %}
+                <a href="{{ url_for('watchlist') }}" class="tv-btn tv-btn-secondary full-width tv-spacer-top">
+                    Open Watchlist
+                </a>
+            </div>
+
+            <div class="tv-panel tv-side-panel">
+                <div class="tv-panel-header">
+                    <div>
+                        <div class="tv-eyebrow">Quick View</div>
+                        <h2>Snapshot</h2>
+                    </div>
+                </div>
+
+                <div class="tv-mini-stats">
+                    <div class="tv-mini-stat">
+                        <span>Address</span>
+                        <strong>{{ address[:10] }}...{{ address[-6:] }}</strong>
+                    </div>
+                    <div class="tv-mini-stat">
+                        <span>Token</span>
+                        <strong>{{ token_name }}</strong>
+                    </div>
+                    <div class="tv-mini-stat">
+                        <span>Symbol</span>
+                        <strong>{{ symbol or "N/A" }}</strong>
+                    </div>
+                    <div class="tv-mini-stat">
+                        <span>Status</span>
+                        <strong>{{ risk.level }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            {% if not show_premium %}
+            <div class="tv-panel tv-side-panel tv-upgrade-panel">
+                <div class="tv-eyebrow">Upgrade</div>
+                <h2>Unlock Pro Tools</h2>
+                <p>
+                    Get recommendation, hype type, RugCheck, and premium signal visibility.
+                </p>
+                <a href="{{ url_for('pricing') }}" class="tv-btn tv-btn-primary full-width">See Pro Plan</a>
+            </div>
+            {% endif %}
+        </aside>
+    </section>
+    {% endif %}
+</section>
 {% endblock %}

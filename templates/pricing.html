@@ -1,43 +1,73 @@
 {% extends "base.html" %}
-{% block content %}
 
+{% block title %}Pricing{% endblock %}
+
+{% block content %}
 <section class="section-head">
-    <h1>Pricing</h1>
+    <div class="eyebrow">Pricing</div>
+    <h1>Simple pricing for serious meme coin traders</h1>
+    <p class="section-subtext">
+        Start free. Upgrade when you want deeper conviction, better filtering, and premium signals.
+    </p>
 </section>
 
-<div class="pricing-grid">
-
+<section class="pricing-grid">
     <div class="pricing-card glass-card">
-        <h3>Free</h3>
-        <p>$0</p>
-        <ul>
+        <div class="price-badge">Free</div>
+        <h3>Starter</h3>
+        <div class="price-line">
+            <span class="price-big">$0</span>
+            <span class="price-small">/ forever</span>
+        </div>
+
+        <p class="muted">
+            {{ free_remaining if free_remaining is not none else 0 }} free analyses remaining today
+        </p>
+
+        <ul class="feature-list">
             <li>Basic analysis</li>
-            <li>Limited usage</li>
+            <li>Profile + history</li>
+            <li>Watchlist</li>
+            <li>Momentum score</li>
+            <li>Phase detection</li>
+            <li>Recommendation locked</li>
+            <li>Hype type locked</li>
+            <li>RugCheck locked</li>
+            <li>Signals dashboard locked</li>
         </ul>
     </div>
 
     <div class="pricing-card featured glass-card">
-        <h3>Pro</h3>
-        <p>$9.99/month</p>
+        <div class="featured-ribbon">Most Popular</div>
+        <div class="price-badge premium-badge">Pro</div>
+        <h3>MemeCheck Pro</h3>
+        <div class="price-line">
+            <span class="price-big">$9.99</span>
+            <span class="price-small">/ month</span>
+        </div>
 
-        <ul>
-            <li>Unlimited analysis</li>
+        <p class="muted">
+            Built for traders who want speed, edge, and clearer decisions.
+        </p>
+
+        <ul class="feature-list">
+            <li>Unlimited analyzations</li>
+            <li>Recommendation unlocked</li>
+            <li>Hype type unlocked</li>
+            <li>RugCheck unlocked</li>
             <li>Signals dashboard</li>
-            <li>Hype detection</li>
-            <li>Rug check</li>
+            <li>Premium watchlist intelligence</li>
         </ul>
 
         {% if is_pro_user %}
-            <form method="POST" action="/create-billing-portal-session">
-                <button>Manage Subscription</button>
+            <form method="POST" action="{{ url_for('create_billing_portal_session') }}">
+                <button type="submit" class="btn-primary full-width">Manage / Cancel Subscription</button>
             </form>
         {% else %}
-            <form method="POST" action="/create-checkout-session">
-                <button>Upgrade</button>
+            <form method="POST" action="{{ url_for('create_checkout_session') }}">
+                <button type="submit" class="btn-primary full-width">Upgrade to Pro</button>
             </form>
         {% endif %}
     </div>
-
-</div>
-
+</section>
 {% endblock %}

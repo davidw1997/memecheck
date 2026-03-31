@@ -1,18 +1,27 @@
 {% extends "base.html" %}
-{% block content %}
 
-<div class="auth-shell">
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<section class="auth-shell">
     <div class="auth-card glass-card">
-        <h2>Login</h2>
+        <div class="eyebrow">Welcome back</div>
+        <h2>Login to MemeCheck</h2>
+        <p class="section-subtext">Access your signals, reports, and premium tools.</p>
 
         <form method="POST" class="premium-form">
+            <label>Email</label>
             <input type="email" name="email" placeholder="Email" required>
+
+            <label>Password</label>
             <input type="password" name="password" placeholder="Password" required>
-            <button type="submit">Login</button>
+
+            <button type="submit" class="btn-primary full-width">Login</button>
         </form>
 
-        <p>Don't have an account? <a href="/signup">Sign up</a></p>
+        <p class="auth-link">
+            Need an account? <a href="{{ url_for('signup') }}">Sign up</a>
+        </p>
     </div>
-</div>
-
+</section>
 {% endblock %}
