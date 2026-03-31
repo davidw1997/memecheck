@@ -547,11 +547,14 @@ def stripe_webhook():
 
     if event_type == "checkout.session.completed":
         user_id = obj.get("metadata", {}).get("user_id") or obj.get("client_reference_id")
+
         if user_id:
             user = db.session.get(User, int(user_id))
             if user:
                 user.stripe_customer_id = obj.get("customer")
                 user.stripe_subscription_id = obj.get("subscription")
+                user.plan = "pro"
+                user.subscription_status = "active"
                 db.session.commit()
 
     elif event_type in ("customer.subscription.created", "customer.subscription.updated"):
