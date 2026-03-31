@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="report-card">
+    {% if error %}
+        <h2>Error</h2>
+        <p>{{ error }}</p>
+        <a href="/">Go back</a>
+    {% else %}
+        <h2>Token Snapshot</h2>
+
+        <div class="report-box highlight">
+            <h3>Decision</h3>
+            <p><strong>Risk:</strong> {{ risk.score }} ({{ risk.level }})</p>
+            <p><strong>Recommendation:</strong> {{ recommendation }}</p>
+            <p><strong>Momentum Score:</strong> {{ momentum_score }}</p>
+            <p><strong>Phase:</strong> {{ phase }}</p>
+            <p><strong>Hype Type:</strong> {{ hype_type }}</p>
+
+            <h4>AI Summary</h4>
+            <p style="white-space: pre-line;">{{ summary }}</p>
+        </div>
+
+        {% if signals %}
+        <div class="report-box">
+            <h3>Signals</h3>
+            <ul>
+                {% for signal in signals %}
+                    <li>{{ signal }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="report-box">
+            <h3>Add to Watchlist</h3>
+            <form action="/add_to_watchlist" method="POST" class="analyze-form">
+                <input type="hidden" name="address" value="{{ address }}">
+                <input type="hidden" name="chain" value="{{ chain }}">
+                <input type="hidden" name="token_name" value="{{ token_name }}">
+                <input type="hidden" name="symbol" value="{{ symbol }}">
+                <input type="hidden" name="price_usd" value="{{ price_usd if price_usd is not none else '' }}">
+                <input type="hidden" name="risk_score" value="{{ risk.score }}">
+                <input type="hidden" name="recommendation" value="{{ recommendation }}">
+                <input type="hidden" name="momentum_score" value="{{ momentum_score }}">
+                <input type="hidden" name="phase" value="{{ phase }}">
+                <input type="hidden" name="hype_type" value="{{ hype_type }}">
+                <button type="submit">Save to Watchlist</button>
+            </form>
+        </div>
+
+        <div class="report-grid">
+            <div class="report-box">
+                <h3>Input</h3>
+                <p><strong>Address:</strong> {{ address }}</p>
+                <p><strong>Detected Chain:</strong> {{ chain }}</p>
+            </div>
+
+            <div class="report-box">
+                <h3>DEX Screener</h3>
+                {% if dex_data.success %}
+                    <p><strong>Name:</strong> {{ dex_data.token_name }}</p>
+                    <p><strong>Symbol:</strong> {{ dex_data.symbol }}</p>
+                    <p><strong>DEX:</strong> {{ dex_data.dex_id }}</p>
+                    <p><strong>Price USD:</strong> {{ dex_data.price_usd }}</p>
+                    <p><strong>Liquidity USD:</strong> {{ dex_data.liquidity_usd }}</p>
+                    <p><strong>24h Volume:</strong> {{ dex_data.volume_24h }}</p>
+                    <p><strong>24h Price Change:</strong> {{ dex_data.price_change_24h }}%</p>
+                    <p><strong>Token Age (minutes):</strong> {{ dex_data.age_minutes }}</p>
+                    {% if dex_data.url %}
+                        <p><a href="{{ dex_data.url }}" target="_blank">View on DEX Screener</a></p>
+                    {% endif %}
+                {% else %}
+                    <p>{{ dex_data.error }}</p>
+                {% endif %}
+            </div>
+
+            <div class="report-box">
+                <h3>Birdeye</h3>
+                {% if birdeye_data.success %}
+                    <p><strong>Holder Count:</strong> {{ birdeye_data.holder_count }}</p>
+                    <p><strong>Price:</strong> {{ birdeye_data.price }}</p>
+                    <p><strong>Liquidity:</strong> {{ birdeye_data.liquidity }}</p>
+                    <p><strong>Market Cap:</strong> {{ birdeye_data.mc }}</p>
+                    <p><strong>24h Volume:</strong> {{ birdeye_data.v24h }}</p>
+                {% else %}
+                    <p>Birdeye data not available.</p>
+                {% endif %}
+            </div>
+
+            <div class="report-box">
+                <h3>RugCheck</h3>
+                {% if rug_data and rug_data.success %}
+                    <p><strong>Score:</strong> {{ rug_data.score }}</p>
+                    <p><strong>Warnings:</strong></p>
+                    <ul>
+                        {% for w in rug_data.warnings %}
+                            <li>{{ w }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p>No RugCheck data available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="back-link">
+            <a href="/">Analyze another token</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

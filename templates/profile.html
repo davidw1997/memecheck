@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<section class="report-card">
+    <h2>{{ user.username }}'s Profile</h2>
+    <p><strong>Email:</strong> {{ user.email }}</p>
+    <p><strong>Plan:</strong> {{ "Pro" if is_pro_user else "Free" }}</p>
+    {% if not is_pro_user %}
+        <p><strong>Free analyses left today:</strong> {{ free_remaining }}</p>
+    {% endif %}
+    <p><strong>Watchlist Items:</strong> {{ watchlist_count }}</p>
+
+    {% if is_pro_user %}
+    <form method="POST" action="{{ url_for('create_billing_portal_session') }}" style="margin-top: 16px;">
+        <button type="submit">Manage / Cancel Subscription</button>
+    </form>
+    {% endif %}
+</section>
+
+<section class="report-card">
+    <h3>Recent Analyzations</h3>
+
+    {% for r in reports %}
+    <div class="report-box">
+        <p><strong>{{ r.token_name }}{% if r.symbol %} ({{ r.symbol }}){% endif %}</strong></p>
+        <p><strong>Address:</strong> {{ r.address }}</p>
+        <p><strong>Chain:</strong> {{ r.chain }}</p>
+        <p><strong>Price USD:</strong> {{ r.price_usd or "N/A" }}</p>
+        <p><strong>Risk:</strong> {{ r.risk_score }} ({{ r.risk_level }})</p>
+        <p><strong>Momentum:</strong> {{ r.momentum_score or "N/A" }}</p>
+        <p><strong>Phase:</strong> {{ r.phase or "N/A" }}</p>
+
+        {% if is_pro_user %}
+            <p><strong>Recommendation:</strong> {{ r.recommendation }}</p>
+            <p><strong>Hype Type:</strong> {{ r.hype_type or "N/A" }}</p>
+        {% else %}
+            <p><strong>Recommendation:</strong> Pro only</p>
+            <p><strong>Hype Type:</strong> Pro only</p>
+        {% endif %}
+
+        <p style="white-space: pre-line;">{{ r.summary }}</p>
+        <small>{{ r.created_at }}</small>
+    </div>
+    {% else %}
+    <p>No analyzations yet.</p>
+    {% endfor %}
+</section>
+{% endblock %}
