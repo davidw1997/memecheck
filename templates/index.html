@@ -1,34 +1,21 @@
 {% extends "base.html" %}
-
-{% block title %}MemeCheck - Home{% endblock %}
-
 {% block content %}
-<section class="hero-card">
-    <h2>Analyze a Meme Coin</h2>
-    <p>
-        {% if current_user %}
-            Paste a Solana or Base token contract address to get started.
-        {% else %}
-            Create an account or log in to analyze tokens, save watchlists, and track your recent reports.
-        {% endif %}
-    </p>
 
-    {% if current_user %}
-    <form action="/analyze" method="POST" class="analyze-form">
-        <textarea
-            name="address"
-            rows="4"
-            placeholder="Paste token contract address here..."
-            required
-        ></textarea>
+<section class="hero-premium">
+    <div>
+        <div class="eyebrow">AI-powered meme coin analysis</div>
+        <h1>Catch pumps early. Avoid rugs faster.</h1>
 
-        <button type="submit">Analyze Token</button>
-    </form>
-    {% else %}
-    <div class="cta-row">
-        <a href="{{ url_for('signup') }}"><button>Create Account</button></a>
-        <a href="{{ url_for('login') }}"><button>Login</button></a>
+        <form action="/analyze" method="POST" class="premium-form">
+            <textarea name="address" placeholder="Paste token contract..." required></textarea>
+            <button type="submit">Analyze Token</button>
+        </form>
     </div>
-    {% endif %}
+
+    <div class="glass-card">
+        <h3>Live Intelligence</h3>
+        <p>Risk scoring, hype detection, and trading signals in seconds.</p>
+    </div>
 </section>
+
 {% endblock %}

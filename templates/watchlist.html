@@ -1,48 +1,16 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Watchlist</h2>
 
-<h3>Saved Tokens</h3>
+<h1>Watchlist</h1>
+
 {% for item in watchlist_items %}
-<div class="report-box">
-    <p><strong>{{ item.token_name or "Unknown" }}{% if item.symbol %} ({{ item.symbol }}){% endif %}</strong></p>
-    <p><strong>Address:</strong> {{ item.address }}</p>
-    <p><strong>Chain:</strong> {{ item.chain }}</p>
-    <p><strong>Current Price USD:</strong> {{ item.current_price_usd or "N/A" }}</p>
-    <p><strong>Last Risk Score:</strong> {{ item.last_risk_score if item.last_risk_score is not none else "N/A" }}</p>
-    <p><strong>Last Recommendation:</strong> {{ item.last_recommendation or "N/A" }}</p>
-    <p><strong>Last Momentum Score:</strong> {{ item.last_momentum_score if item.last_momentum_score is not none else "N/A" }}</p>
-    <p><strong>Last Phase:</strong> {{ item.last_phase or "N/A" }}</p>
-    <p><strong>Last Hype Type:</strong> {{ item.last_hype_type or "N/A" }}</p>
+<div class="report-box glass-card">
+    <h3>{{ item.token_name }}</h3>
+    <p>{{ item.address }}</p>
+    <p>Price: {{ item.current_price_usd }}</p>
 
-    <a href="/reanalyze/{{ item.id }}">
-        <button style="margin-bottom: 10px;">Re-Analyze</button>
-    </a>
-
-    <form action="/delete_watchlist/{{ item.id }}" method="POST">
-        <button type="submit">Remove</button>
-    </form>
-
-    <small>{{ item.created_at }}</small>
-</div>
-{% else %}
-<p>No watchlist items yet.</p>
-{% endfor %}
-
-<h3>Recent Reports</h3>
-{% for r in reports %}
-<div class="report-box">
-    <p><strong>{{ r.token_name }}{% if r.symbol %} ({{ r.symbol }}){% endif %}</strong></p>
-    <p><strong>Address:</strong> {{ r.address }}</p>
-    <p><strong>Chain:</strong> {{ r.chain }}</p>
-    <p><strong>Price USD:</strong> {{ r.price_usd or "N/A" }}</p>
-    <p><strong>Recommendation:</strong> {{ r.recommendation }} ({{ r.risk_score }})</p>
-    <p><strong>Momentum:</strong> {{ r.momentum_score or "N/A" }}</p>
-    <p><strong>Phase:</strong> {{ r.phase or "N/A" }}</p>
-    <p><strong>Hype Type:</strong> {{ r.hype_type or "N/A" }}</p>
-    <p style="white-space: pre-line;">{{ r.summary }}</p>
-    <small>{{ r.created_at }}</small>
+    <a href="/reanalyze/{{ item.id }}">Re-analyze</a>
 </div>
 {% endfor %}
+
 {% endblock %}

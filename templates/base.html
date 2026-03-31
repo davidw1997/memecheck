@@ -7,42 +7,51 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <header class="site-header">
-        <div class="container">
-            <h1 class="logo">MemeCheck</h1>
-            <p class="tagline">Paste a token. Get a fast risk & hype snapshot.</p>
 
-            <nav class="top-nav">
-                <a href="/">Home</a>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+<div class="bg-grid"></div>
 
-                {% if current_user %}
-                    <a href="{{ url_for('profile') }}">Profile</a>
-                    <a href="{{ url_for('pricing') }}">Pricing</a>
-                    <a href="{{ url_for('watchlist') }}">Watchlist</a>
-                    <a href="{{ url_for('signals_dashboard') }}">Signals</a>
-                    <a href="{{ url_for('logout') }}">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('login') }}">Login</a>
-                    <a href="{{ url_for('signup') }}">Sign Up</a>
-                {% endif %}
-            </nav>
-        </div>
-    </header>
+<header class="site-header">
+    <div class="container nav-shell">
+        <a href="/" class="brand">
+            <div class="brand-mark">M</div>
+            <div>
+                <div class="brand-name">MemeCheck</div>
+                <div class="brand-sub">AI Meme Intelligence</div>
+            </div>
+        </a>
 
-    <main class="container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <div class="flash-box">
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
+        <nav class="top-nav">
+            <a href="/">Home</a>
+
+            {% if current_user %}
+                <a href="/profile">Profile</a>
+                <a href="/pricing">Pricing</a>
+                <a href="/watchlist">Watchlist</a>
+                <a href="/signals">Signals</a>
+                <a href="/logout" class="nav-ghost">Logout</a>
+            {% else %}
+                <a href="/login">Login</a>
+                <a href="/signup" class="nav-cta">Sign Up</a>
             {% endif %}
-        {% endwith %}
+        </nav>
+    </div>
+</header>
 
-        {% block content %}{% endblock %}
-    </main>
+<main class="container page-shell">
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="flash-box">
+                {% for message in messages %}
+                    <p>{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
 
-    <script src="{{ url_for('static', filename='app.js') }}"></script>
+    {% block content %}{% endblock %}
+</main>
+
 </body>
 </html>

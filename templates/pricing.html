@@ -1,46 +1,43 @@
 {% extends "base.html" %}
-
-{% block title %}Pricing{% endblock %}
-
 {% block content %}
-<section class="report-card">
-    <h2>Pricing</h2>
 
-    <div class="pricing-card">
+<section class="section-head">
+    <h1>Pricing</h1>
+</section>
+
+<div class="pricing-grid">
+
+    <div class="pricing-card glass-card">
         <h3>Free</h3>
-        <p><strong>$0</strong></p>
-        <p>{{ free_remaining if free_remaining is not none else 0 }} free analyses remaining today</p>
+        <p>$0</p>
         <ul>
             <li>Basic analysis</li>
-            <li>Profile + history</li>
-            <li>Watchlist</li>
-            <li>No recommendation</li>
-            <li>No hype type</li>
-            <li>No RugCheck</li>
-            <li>No signals dashboard</li>
+            <li>Limited usage</li>
         </ul>
     </div>
 
-    <div class="pricing-card premium">
+    <div class="pricing-card featured glass-card">
         <h3>Pro</h3>
-        <p><strong>$9.99 / month</strong></p>
+        <p>$9.99/month</p>
+
         <ul>
-            <li>Unlimited analyzations</li>
-            <li>Recommendation</li>
-            <li>Hype type</li>
-            <li>RugCheck</li>
+            <li>Unlimited analysis</li>
             <li>Signals dashboard</li>
+            <li>Hype detection</li>
+            <li>Rug check</li>
         </ul>
 
         {% if is_pro_user %}
-            <form method="POST" action="{{ url_for('create_billing_portal_session') }}">
-                <button type="submit">Manage / Cancel Subscription</button>
+            <form method="POST" action="/create-billing-portal-session">
+                <button>Manage Subscription</button>
             </form>
         {% else %}
-            <form method="POST" action="{{ url_for('create_checkout_session') }}">
-                <button type="submit">Upgrade to Pro</button>
+            <form method="POST" action="/create-checkout-session">
+                <button>Upgrade</button>
             </form>
         {% endif %}
     </div>
-</section>
+
+</div>
+
 {% endblock %}

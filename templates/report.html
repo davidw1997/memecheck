@@ -1,30 +1,82 @@
 {% extends "base.html" %}
 
+{% block title %}Report{% endblock %}
+
 {% block content %}
-<section class="report-card">
+<section class="section-head">
     {% if error %}
-        <h2>Error</h2>
-        <p>{{ error }}</p>
-        <a href="/">Go back</a>
+        <div class="glass-card">
+            <h2>Error</h2>
+            <p>{{ error }}</p>
+            <a href="{{ url_for('home') }}" class="btn-secondary inline-btn">Go back</a>
+        </div>
     {% else %}
-        <h2>Token Snapshot</h2>
+        <div class="eyebrow">Analysis report</div>
+        <h1>Token Snapshot</h1>
+        <p class="section-subtext">
+            Fast intelligence for early-stage meme coin decision-making.
+        </p>
+    {% endif %}
+</section>
 
-        <div class="report-box highlight">
-            <h3>Decision</h3>
-            <p><strong>Risk:</strong> {{ risk.score }} ({{ risk.level }})</p>
-            <p><strong>Recommendation:</strong> {{ recommendation }}</p>
-            <p><strong>Momentum Score:</strong> {{ momentum_score }}</p>
-            <p><strong>Phase:</strong> {{ phase }}</p>
-            <p><strong>Hype Type:</strong> {{ hype_type }}</p>
+{% if not error %}
+<div class="report-layout">
+    <div class="report-main">
+        <div class="glass-card hero-report-card">
+            <div class="card-header-row">
+                <div>
+                    <h2>{{ token_name }}{% if symbol %} ({{ symbol }}){% endif %}</h2>
+                    <p class="muted">{{ address }}</p>
+                </div>
+                <span class="pill">{{ chain }}</span>
+            </div>
 
-            <h4>AI Summary</h4>
-            <p style="white-space: pre-line;">{{ summary }}</p>
+            <div class="metric-grid">
+                <div class="metric-item">
+                    <span>Risk</span>
+                    <strong>{{ risk.score }} ({{ risk.level }})</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Momentum</span>
+                    <strong>{{ momentum_score }}</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Phase</span>
+                    <strong>{{ phase }}</strong>
+                </div>
+                <div class="metric-item">
+                    <span>Price</span>
+                    <strong>{{ price_usd or "N/A" }}</strong>
+                </div>
+            </div>
+
+            {% if show_premium %}
+            <div class="metric-grid">
+                <div class="metric-item premium-highlight">
+                    <span>Recommendation</span>
+                    <strong>{{ recommendation }}</strong>
+                </div>
+                <div class="metric-item premium-highlight">
+                    <span>Hype Type</span>
+                    <strong>{{ hype_type }}</strong>
+                </div>
+            </div>
+            {% else %}
+            <div class="locked-strip">
+                🔒 Pro unlocks Recommendation, Hype Type, RugCheck, and Signals
+            </div>
+            {% endif %}
+
+            <div class="summary-panel">
+                <h3>AI Summary</h3>
+                <p class="summary-text">{{ summary }}</p>
+            </div>
         </div>
 
-        {% if signals %}
-        <div class="report-box">
+        {% if signals and show_premium %}
+        <div class="glass-card report-box">
             <h3>Signals</h3>
-            <ul>
+            <ul class="signal-list">
                 {% for signal in signals %}
                     <li>{{ signal }}</li>
                 {% endfor %}
@@ -32,81 +84,94 @@
         </div>
         {% endif %}
 
-        <div class="report-box">
-            <h3>Add to Watchlist</h3>
-            <form action="/add_to_watchlist" method="POST" class="analyze-form">
+        <div class="glass-card report-box">
+            <h3>Market Data</h3>
+
+            <div class="report-grid">
+                <div class="report-box inner-card">
+                    <h4>DEX Screener</h4>
+                    {% if dex_data.success %}
+                        <p><strong>Name:</strong> {{ dex_data.token_name }}</p>
+                        <p><strong>Symbol:</strong> {{ dex_data.symbol }}</p>
+                        <p><strong>DEX:</strong> {{ dex_data.dex_id }}</p>
+                        <p><strong>Price USD:</strong> {{ dex_data.price_usd }}</p>
+                        <p><strong>Liquidity USD:</strong> {{ dex_data.liquidity_usd }}</p>
+                        <p><strong>24h Volume:</strong> {{ dex_data.volume_24h }}</p>
+                        <p><strong>24h Price Change:</strong> {{ dex_data.price_change_24h }}%</p>
+                        <p><strong>Token Age:</strong> {{ dex_data.age_minutes }} min</p>
+                        {% if dex_data.url %}
+                            <p>
+                                <a href="{{ dex_data.url }}" target="_blank">View on DEX Screener</a>
+                            </p>
+                        {% endif %}
+                    {% else %}
+                        <p>{{ dex_data.error }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="report-box inner-card">
+                    <h4>Birdeye</h4>
+                    {% if birdeye_data.success %}
+                        <p><strong>Holder Count:</strong> {{ birdeye_data.holder_count }}</p>
+                        <p><strong>Price:</strong> {{ birdeye_data.price }}</p>
+                        <p><strong>Liquidity:</strong> {{ birdeye_data.liquidity }}</p>
+                        <p><strong>Market Cap:</strong> {{ birdeye_data.mc }}</p>
+                        <p><strong>24h Volume:</strong> {{ birdeye_data.v24h }}</p>
+                    {% else %}
+                        <p>Birdeye data not available.</p>
+                    {% endif %}
+                </div>
+
+                <div class="report-box inner-card">
+                    <h4>RugCheck</h4>
+                    {% if show_premium %}
+                        {% if rug_data and rug_data.success %}
+                            <p><strong>Score:</strong> {{ rug_data.score }}</p>
+
+                            {% if rug_data.warnings and rug_data.warnings|length > 0 %}
+                            <ul class="signal-list compact">
+                                {% for w in rug_data.warnings %}
+                                    <li>{{ w }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% else %}
+                                <p>No RugCheck warnings found.</p>
+                            {% endif %}
+                        {% else %}
+                            <p>No RugCheck data available.</p>
+                        {% endif %}
+                    {% else %}
+                        <p>🔒 Pro only</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <aside class="report-side">
+        <div class="glass-card sticky-card">
+            <h3>Save to Watchlist</h3>
+
+            <form action="{{ url_for('add_to_watchlist') }}" method="POST" class="premium-form">
                 <input type="hidden" name="address" value="{{ address }}">
                 <input type="hidden" name="chain" value="{{ chain }}">
                 <input type="hidden" name="token_name" value="{{ token_name }}">
                 <input type="hidden" name="symbol" value="{{ symbol }}">
                 <input type="hidden" name="price_usd" value="{{ price_usd if price_usd is not none else '' }}">
                 <input type="hidden" name="risk_score" value="{{ risk.score }}">
-                <input type="hidden" name="recommendation" value="{{ recommendation }}">
+                <input type="hidden" name="recommendation" value="{{ recommendation if recommendation else '' }}">
                 <input type="hidden" name="momentum_score" value="{{ momentum_score }}">
                 <input type="hidden" name="phase" value="{{ phase }}">
-                <input type="hidden" name="hype_type" value="{{ hype_type }}">
-                <button type="submit">Save to Watchlist</button>
+                <input type="hidden" name="hype_type" value="{{ hype_type if hype_type else '' }}">
+
+                <button type="submit" class="btn-primary full-width">Save Token</button>
             </form>
+
+            <a href="{{ url_for('home') }}" class="btn-secondary full-width btn-link-block" style="margin-top: 12px;">
+                Analyze Another
+            </a>
         </div>
-
-        <div class="report-grid">
-            <div class="report-box">
-                <h3>Input</h3>
-                <p><strong>Address:</strong> {{ address }}</p>
-                <p><strong>Detected Chain:</strong> {{ chain }}</p>
-            </div>
-
-            <div class="report-box">
-                <h3>DEX Screener</h3>
-                {% if dex_data.success %}
-                    <p><strong>Name:</strong> {{ dex_data.token_name }}</p>
-                    <p><strong>Symbol:</strong> {{ dex_data.symbol }}</p>
-                    <p><strong>DEX:</strong> {{ dex_data.dex_id }}</p>
-                    <p><strong>Price USD:</strong> {{ dex_data.price_usd }}</p>
-                    <p><strong>Liquidity USD:</strong> {{ dex_data.liquidity_usd }}</p>
-                    <p><strong>24h Volume:</strong> {{ dex_data.volume_24h }}</p>
-                    <p><strong>24h Price Change:</strong> {{ dex_data.price_change_24h }}%</p>
-                    <p><strong>Token Age (minutes):</strong> {{ dex_data.age_minutes }}</p>
-                    {% if dex_data.url %}
-                        <p><a href="{{ dex_data.url }}" target="_blank">View on DEX Screener</a></p>
-                    {% endif %}
-                {% else %}
-                    <p>{{ dex_data.error }}</p>
-                {% endif %}
-            </div>
-
-            <div class="report-box">
-                <h3>Birdeye</h3>
-                {% if birdeye_data.success %}
-                    <p><strong>Holder Count:</strong> {{ birdeye_data.holder_count }}</p>
-                    <p><strong>Price:</strong> {{ birdeye_data.price }}</p>
-                    <p><strong>Liquidity:</strong> {{ birdeye_data.liquidity }}</p>
-                    <p><strong>Market Cap:</strong> {{ birdeye_data.mc }}</p>
-                    <p><strong>24h Volume:</strong> {{ birdeye_data.v24h }}</p>
-                {% else %}
-                    <p>Birdeye data not available.</p>
-                {% endif %}
-            </div>
-
-            <div class="report-box">
-                <h3>RugCheck</h3>
-                {% if rug_data and rug_data.success %}
-                    <p><strong>Score:</strong> {{ rug_data.score }}</p>
-                    <p><strong>Warnings:</strong></p>
-                    <ul>
-                        {% for w in rug_data.warnings %}
-                            <li>{{ w }}</li>
-                        {% endfor %}
-                    </ul>
-                {% else %}
-                    <p>No RugCheck data available.</p>
-                {% endif %}
-            </div>
-        </div>
-
-        <div class="back-link">
-            <a href="/">Analyze another token</a>
-        </div>
-    {% endif %}
-</section>
+    </aside>
+</div>
+{% endif %}
 {% endblock %}

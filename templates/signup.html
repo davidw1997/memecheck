@@ -1,21 +1,18 @@
 {% extends "base.html" %}
-
-{% block title %}Sign Up{% endblock %}
-
 {% block content %}
-<section class="report-card">
-    <h2>Create Account</h2>
 
-    <form method="POST" class="analyze-form">
-        <input type="text" name="username" placeholder="Username" required>
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <input type="password" name="confirm_password" placeholder="Confirm Password" required>
-        <button type="submit">Sign Up</button>
-    </form>
+<div class="auth-shell">
+    <div class="auth-card glass-card">
+        <h2>Create Account</h2>
 
-    <p class="auth-link">
-        Already have an account? <a href="{{ url_for('login') }}">Login</a>
-    </p>
-</section>
+        <form method="POST" class="premium-form">
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <input type="password" name="confirm_password" placeholder="Confirm Password" required>
+            <button type="submit">Sign Up</button>
+        </form>
+    </div>
+</div>
+
 {% endblock %}

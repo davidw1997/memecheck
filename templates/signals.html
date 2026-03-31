@@ -1,32 +1,18 @@
 {% extends "base.html" %}
-
 {% block content %}
-<h2>Signals Dashboard</h2>
+
+<h1>Signals Dashboard</h1>
 
 {% for item in signal_items %}
-<div class="report-box highlight">
-    <p><strong>{{ item.token_name or "Unknown" }}{% if item.symbol %} ({{ item.symbol }}){% endif %}</strong></p>
-    <p><strong>Address:</strong> {{ item.address }}</p>
-    <p><strong>Chain:</strong> {{ item.chain }}</p>
-    <p><strong>Current Price USD:</strong> {{ item.current_price_usd or "N/A" }}</p>
-    <p><strong>Risk Score:</strong> {{ item.risk_score }}</p>
-    <p><strong>Recommendation:</strong> {{ item.recommendation }}</p>
-    <p><strong>Momentum Score:</strong> {{ item.momentum_score }}</p>
-    <p><strong>Phase:</strong> {{ item.phase }}</p>
-    <p><strong>Hype Type:</strong> {{ item.hype_type }}</p>
+<div class="report-box glass-card">
+    <h3>{{ item.token_name }}</h3>
 
-    <h4>Detected Signals</h4>
     <ul>
         {% for signal in item.signals %}
-            <li>{{ signal }}</li>
+        <li>{{ signal }}</li>
         {% endfor %}
     </ul>
-
-    <a href="/reanalyze/{{ item.id }}">
-        <button>Open Full Report</button>
-    </a>
 </div>
-{% else %}
-<p>No watchlist tokens to scan yet.</p>
 {% endfor %}
+
 {% endblock %}

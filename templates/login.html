@@ -1,19 +1,18 @@
 {% extends "base.html" %}
-
-{% block title %}Login{% endblock %}
-
 {% block content %}
-<section class="report-card">
-    <h2>Login</h2>
 
-    <form method="POST" class="analyze-form">
-        <input type="email" name="email" placeholder="Email" required>
-        <input type="password" name="password" placeholder="Password" required>
-        <button type="submit">Login</button>
-    </form>
+<div class="auth-shell">
+    <div class="auth-card glass-card">
+        <h2>Login</h2>
 
-    <p class="auth-link">
-        Need an account? <a href="{{ url_for('signup') }}">Sign up</a>
-    </p>
-</section>
+        <form method="POST" class="premium-form">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+
+        <p>Don't have an account? <a href="/signup">Sign up</a></p>
+    </div>
+</div>
+
 {% endblock %}
