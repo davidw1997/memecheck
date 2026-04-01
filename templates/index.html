@@ -1,15 +1,15 @@
 {% extends "base.html" %}
 
-{% block title %}MemeCheck - Home{% endblock %}
+{% block title %}HypeScopeAI - Home{% endblock %}
 
 {% block content %}
 <section class="hero-premium">
     <div class="hero-copy">
-        <div class="eyebrow">AI-powered meme coin analysis</div>
-        <h1>Catch pumps early. Avoid rugs faster.</h1>
+        <div class="eyebrow">AI-powered meme coin intelligence</div>
+        <h1>Track hype. Spot pumps. Avoid rugs.</h1>
         <p class="hero-text">
-            MemeCheck helps traders analyze early-stage meme coins with lifecycle signals,
-            hype detection, risk scoring, watchlists, and premium intelligence.
+            HypeScopeAI analyzes meme coins in real time—tracking hype velocity,
+            detecting fake momentum, and helping you avoid costly traps.
         </p>
 
         {% if current_user %}
@@ -24,7 +24,7 @@
             ></textarea>
 
             <div class="hero-actions">
-                <button type="submit" class="btn-primary">Analyze Token</button>
+                <button type="submit" class="btn-primary">Scan Token</button>
                 <a href="{{ url_for('pricing') }}" class="btn-secondary">View Plans</a>
             </div>
         </form>
@@ -45,17 +45,17 @@
 
         <div class="mock-stat-grid">
             <div class="mock-stat">
-                <span class="mock-label">Risk Score</span>
+                <span class="mock-label">Collapse Probability</span>
                 <strong>28</strong>
                 <small>Low–Moderate</small>
             </div>
             <div class="mock-stat">
-                <span class="mock-label">Momentum</span>
+                <span class="mock-label">Hype Velocity</span>
                 <strong>74</strong>
                 <small>High</small>
             </div>
             <div class="mock-stat">
-                <span class="mock-label">Phase</span>
+                <span class="mock-label">Hype Phase</span>
                 <strong>Viral Growth</strong>
                 <small>Expansion detected</small>
             </div>
@@ -67,9 +67,9 @@
         </div>
 
         <div class="mock-signals">
-            <div class="signal-row good">Momentum increased</div>
+            <div class="signal-row good">Hype velocity increased</div>
             <div class="signal-row warn">Liquidity still fragile</div>
-            <div class="signal-row good">Recommendation: ENTER</div>
+            <div class="signal-row good">Entry window detected</div>
         </div>
     </div>
 </section>

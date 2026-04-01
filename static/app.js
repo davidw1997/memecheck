@@ -1,4 +1,4 @@
-console.log("MemeCheck premium UI loaded.");
+console.log("HypeScopeAI premium UI loaded.");
 
 document.addEventListener("DOMContentLoaded", function () {
     const container = document.getElementById("tv-widget-container");

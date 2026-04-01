@@ -36,7 +36,7 @@
 
     {% if not is_pro_user %}
     <div class="stat-card glass-card">
-        <span class="stat-label">Free Analyses Left</span>
+        <span class="stat-label">Free Scans Left</span>
         <strong>{{ free_remaining }}</strong>
     </div>
     {% endif %}
@@ -44,7 +44,7 @@
 
 <section class="content-section">
     <div class="section-title-row">
-        <h2>Recent Analyzations</h2>
+        <h2>Recent Scans</h2>
     </div>
 
     {% for r in reports %}
@@ -63,15 +63,15 @@
                 <strong>{{ r.price_usd or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Risk</span>
+                <span>Collapse Probability</span>
                 <strong>{{ r.risk_score }} ({{ r.risk_level }})</strong>
             </div>
             <div class="metric-item">
-                <span>Momentum</span>
+                <span>Hype Velocity</span>
                 <strong>{{ r.momentum_score or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Phase</span>
+                <span>Hype Phase</span>
                 <strong>{{ r.phase or "N/A" }}</strong>
             </div>
         </div>
@@ -79,7 +79,7 @@
         {% if is_pro_user %}
         <div class="metric-grid">
             <div class="metric-item">
-                <span>Recommendation</span>
+                <span>Entry Window</span>
                 <strong>{{ r.recommendation }}</strong>
             </div>
             <div class="metric-item">
@@ -89,7 +89,7 @@
         </div>
         {% else %}
         <div class="locked-strip">
-            🔒 Upgrade to Pro to unlock Recommendation and Hype Type
+            🔒 Upgrade to Pro to unlock Entry Window and Hype Type
         </div>
         {% endif %}
 
@@ -98,7 +98,7 @@
     </div>
     {% else %}
     <div class="empty-state glass-card">
-        <p>No analyzations yet.</p>
+        <p>No scans yet.</p>
     </div>
     {% endfor %}
 </section>

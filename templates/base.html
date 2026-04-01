@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MemeCheck{% endblock %}</title>
+    <title>{% block title %}HypeScopeAI{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
@@ -14,10 +14,10 @@
     <header class="site-header">
         <div class="container nav-shell">
             <a href="{{ url_for('home') }}" class="brand">
-                <div class="brand-mark">M</div>
+                <div class="brand-mark">H</div>
                 <div>
-                    <div class="brand-name">MemeCheck</div>
-                    <div class="brand-sub">AI Meme Intelligence</div>
+                    <div class="brand-name">HypeScopeAI</div>
+                    <div class="brand-sub">Detect hype before it explodes</div>
                 </div>
             </a>
 
@@ -28,7 +28,7 @@
                     <a href="{{ url_for('profile') }}">Profile</a>
                     <a href="{{ url_for('pricing') }}">Pricing</a>
                     <a href="{{ url_for('watchlist') }}">Watchlist</a>
-                    <a href="{{ url_for('signals_dashboard') }}">Signals</a>
+                    <a href="{{ url_for('signals_dashboard') }}">Hype Signals</a>
                     <a href="{{ url_for('logout') }}" class="nav-ghost">Logout</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">Login</a>

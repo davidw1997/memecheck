@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %}Signals{% endblock %}
+{% block title %}Hype Signals{% endblock %}
 
 {% block content %}
 <section class="section-head">
-    <div class="eyebrow">Signals Dashboard</div>
-    <h1>Premium signal intelligence</h1>
-    <p class="section-subtext">Monitor changes in risk, momentum, hype, and phase across your watchlist.</p>
+    <div class="eyebrow">Hype Signals Dashboard</div>
+    <h1>Premium hype intelligence</h1>
+    <p class="section-subtext">Monitor changes in collapse probability, hype velocity, hype type, and phase across your watchlist.</p>
 </section>
 
 <section class="content-section">
@@ -26,22 +26,22 @@
                 <strong>{{ item.current_price_usd or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Risk Score</span>
+                <span>Collapse Probability</span>
                 <strong>{{ item.risk_score }}</strong>
             </div>
             <div class="metric-item">
-                <span>Momentum</span>
+                <span>Hype Velocity</span>
                 <strong>{{ item.momentum_score }}</strong>
             </div>
             <div class="metric-item">
-                <span>Phase</span>
+                <span>Hype Phase</span>
                 <strong>{{ item.phase }}</strong>
             </div>
         </div>
 
         <div class="metric-grid">
             <div class="metric-item premium-highlight">
-                <span>Recommendation</span>
+                <span>Entry Window</span>
                 <strong>{{ item.recommendation }}</strong>
             </div>
             <div class="metric-item premium-highlight">
@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <h4>Detected Signals</h4>
+        <h4>Detected Hype Signals</h4>
         <ul class="signal-list">
             {% for signal in item.signals %}
                 <li>{{ signal }}</li>

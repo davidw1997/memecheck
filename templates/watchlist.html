@@ -6,7 +6,7 @@
 <section class="section-head">
     <div class="eyebrow">Watchlist</div>
     <h1>Your tracked meme coins</h1>
-    <p class="section-subtext">Monitor current price, last known risk state, and rerun analysis instantly.</p>
+    <p class="section-subtext">Monitor price, collapse probability, hype velocity, and rerun scans instantly.</p>
 </section>
 
 <section class="content-section">
@@ -26,15 +26,15 @@
                 <strong>{{ item.current_price_usd or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Last Risk</span>
+                <span>Collapse Probability</span>
                 <strong>{{ item.last_risk_score if item.last_risk_score is not none else "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Last Momentum</span>
+                <span>Hype Velocity</span>
                 <strong>{{ item.last_momentum_score if item.last_momentum_score is not none else "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Last Phase</span>
+                <span>Hype Phase</span>
                 <strong>{{ item.last_phase or "N/A" }}</strong>
             </div>
         </div>
@@ -42,22 +42,22 @@
         {% if show_premium %}
         <div class="metric-grid">
             <div class="metric-item">
-                <span>Last Recommendation</span>
+                <span>Entry Window</span>
                 <strong>{{ item.last_recommendation or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Last Hype Type</span>
+                <span>Hype Type</span>
                 <strong>{{ item.last_hype_type or "N/A" }}</strong>
             </div>
         </div>
         {% else %}
         <div class="locked-strip">
-            🔒 Upgrade to Pro to unlock Recommendation and Hype Type
+            🔒 Upgrade to Pro to unlock Entry Window and Hype Type
         </div>
         {% endif %}
 
         <div class="action-row">
-            <a href="{{ url_for('reanalyze', item_id=item.id) }}" class="btn-primary inline-btn">Re-Analyze</a>
+            <a href="{{ url_for('reanalyze', item_id=item.id) }}" class="btn-primary inline-btn">Re-Scan</a>
 
             <form action="{{ url_for('delete_watchlist', item_id=item.id) }}" method="POST">
                 <button type="submit" class="btn-danger">Remove</button>
@@ -94,21 +94,21 @@
                 <strong>{{ r.price_usd or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Risk</span>
+                <span>Collapse Probability</span>
                 <strong>{{ r.risk_score }}</strong>
             </div>
             <div class="metric-item">
-                <span>Momentum</span>
+                <span>Hype Velocity</span>
                 <strong>{{ r.momentum_score or "N/A" }}</strong>
             </div>
             <div class="metric-item">
-                <span>Phase</span>
+                <span>Hype Phase</span>
                 <strong>{{ r.phase or "N/A" }}</strong>
             </div>
         </div>
 
         {% if show_premium %}
-            <p><strong>Recommendation:</strong> {{ r.recommendation }}</p>
+            <p><strong>Entry Window:</strong> {{ r.recommendation }}</p>
             <p><strong>Hype Type:</strong> {{ r.hype_type or "N/A" }}</p>
         {% else %}
             <div class="locked-strip">🔒 Pro only fields hidden</div>

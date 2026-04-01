@@ -10,6 +10,8 @@
     --primary-strong: #34d399;
     --secondary: #18263d;
     --danger: #ef4444;
+    --warning: #f59e0b;
+    --info: #60a5fa;
     --shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
     --radius: 20px;
 }
@@ -189,15 +191,6 @@ body {
     margin: 28px 0 24px;
 }
 
-.hero-copy h1,
-.section-head h1,
-.dashboard-hero h1 {
-    margin: 0 0 14px;
-    font-size: clamp(2rem, 4vw, 3.4rem);
-    line-height: 1.02;
-    letter-spacing: -0.03em;
-}
-
 .hero-panel {
     padding: 24px;
 }
@@ -210,6 +203,15 @@ body {
     letter-spacing: 0.14em;
     text-transform: uppercase;
     margin-bottom: 12px;
+}
+
+.hero-copy h1,
+.section-head h1,
+.dashboard-hero h1 {
+    margin: 0 0 14px;
+    font-size: clamp(2rem, 4vw, 3.4rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
 }
 
 .hero-text,
@@ -342,9 +344,17 @@ button:hover {
     display: inline-block;
 }
 
-.dot.red { background: #ef4444; }
-.dot.yellow { background: #f59e0b; }
-.dot.green { background: #22c55e; }
+.dot.red {
+    background: #ef4444;
+}
+
+.dot.yellow {
+    background: #f59e0b;
+}
+
+.dot.green {
+    background: #22c55e;
+}
 
 .mock-stat-grid,
 .metric-grid,
@@ -613,7 +623,7 @@ a {
     border-color: rgba(16, 185, 129, 0.18);
 }
 
-/* TradingView-style report */
+/* HypeScopeAI Trading Desk Report */
 .tv-report-shell {
     margin-top: 24px;
 }
@@ -691,6 +701,12 @@ a {
     gap: 20px;
 }
 
+.tv-lower-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
 .tv-panel {
     padding: 20px;
     border-radius: 18px;
@@ -705,6 +721,7 @@ a {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 16px;
+    gap: 16px;
 }
 
 .tv-eyebrow {
@@ -810,6 +827,9 @@ a {
     display: flex;
     gap: 10px;
     align-items: center;
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
 }
 
 .tv-signal-dot {
@@ -817,6 +837,7 @@ a {
     height: 8px;
     border-radius: 999px;
     background: #10b981;
+    flex-shrink: 0;
 }
 
 .tv-table-grid {
@@ -855,18 +876,29 @@ a {
 
 .tv-alert-danger {
     background: rgba(239,68,68,0.15);
+    border: 1px solid rgba(239,68,68,0.24);
 }
 
 .tv-alert-warning {
     background: rgba(245,158,11,0.15);
+    border: 1px solid rgba(245,158,11,0.24);
 }
 
 .tv-alert-muted {
     background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
 .tv-alert-success {
     background: rgba(16,185,129,0.15);
+    border: 1px solid rgba(16,185,129,0.24);
+}
+
+.tv-actions-row {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 14px;
 }
 
 .tv-side-panel {
@@ -878,6 +910,13 @@ a {
 .tv-mini-stats {
     display: grid;
     gap: 10px;
+}
+
+.tv-mini-stat {
+    padding: 12px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .tv-mini-stat span {
@@ -897,6 +936,11 @@ a {
     text-decoration: none;
     display: inline-block;
     text-align: center;
+    transition: 0.2s ease;
+}
+
+.tv-btn:hover {
+    transform: translateY(-1px);
 }
 
 .tv-btn-primary {
@@ -971,7 +1015,8 @@ a {
 @media (max-width: 980px) {
     .hero-premium,
     .report-layout,
-    .tv-grid-main {
+    .tv-grid-main,
+    .tv-lower-grid {
         grid-template-columns: 1fr;
     }
 
@@ -1017,5 +1062,10 @@ a {
     .tv-premium-grid,
     .tv-stat-grid-4 {
         grid-template-columns: 1fr;
+    }
+
+    .tv-lock-banner {
+        flex-direction: column;
+        align-items: flex-start;
     }
 }

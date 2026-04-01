@@ -8,7 +8,7 @@
     <div class="tv-panel tv-error-panel">
         <div class="tv-panel-header">
             <div>
-                <div class="tv-eyebrow">Analysis Error</div>
+                <div class="tv-eyebrow">Scan Error</div>
                 <h1>Unable to load report</h1>
             </div>
         </div>
@@ -26,10 +26,10 @@
     <section class="tv-topbar">
         <div class="tv-token-head">
             <div class="tv-token-main">
-                <div class="tv-token-badge">MC</div>
+                <div class="tv-token-badge">H</div>
 
                 <div>
-                    <div class="tv-eyebrow">Token Intelligence Report</div>
+                    <div class="tv-eyebrow">HypeScopeAI Intelligence Report</div>
                     <h1 class="tv-token-title">
                         {{ token_name }}{% if symbol %} <span>({{ symbol }})</span>{% endif %}
                     </h1>
@@ -51,7 +51,7 @@
                 <div class="tv-panel-header">
                     <div>
                         <div class="tv-eyebrow">Market Snapshot</div>
-                        <h2>Decision Engine</h2>
+                        <h2>Hype Engine</h2>
                     </div>
 
                     <div class="tv-price-box">
@@ -62,19 +62,19 @@
 
                 <div class="tv-stat-grid tv-stat-grid-4">
                     <div class="tv-stat-card">
-                        <span class="tv-stat-label">Risk Score</span>
+                        <span class="tv-stat-label">Collapse Probability</span>
                         <strong>{{ risk.score }}</strong>
                         <small>{{ risk.level }}</small>
                     </div>
 
                     <div class="tv-stat-card">
-                        <span class="tv-stat-label">Momentum</span>
+                        <span class="tv-stat-label">Hype Velocity</span>
                         <strong>{{ momentum_score }}</strong>
                         <small>Velocity Index</small>
                     </div>
 
                     <div class="tv-stat-card">
-                        <span class="tv-stat-label">Phase</span>
+                        <span class="tv-stat-label">Hype Phase</span>
                         <strong>{{ phase }}</strong>
                         <small>Lifecycle State</small>
                     </div>
@@ -89,7 +89,7 @@
                 {% if show_premium %}
                 <div class="tv-premium-grid">
                     <div class="tv-signal-box tv-positive-box">
-                        <span class="tv-stat-label">Recommendation</span>
+                        <span class="tv-stat-label">Entry Window</span>
                         <strong>{{ recommendation }}</strong>
                     </div>
 
@@ -102,7 +102,7 @@
                 <div class="tv-lock-banner">
                     <div>
                         <strong>Premium data locked</strong>
-                        <p>Unlock recommendation, hype type, RugCheck, and advanced signal tracking.</p>
+                        <p>Unlock entry window, hype type, RugCheck, and advanced hype signals.</p>
                     </div>
                     <a href="{{ url_for('pricing') }}" class="tv-btn tv-btn-primary">Unlock Pro</a>
                 </div>
@@ -165,7 +165,7 @@
                 <div class="tv-panel-header">
                     <div>
                         <div class="tv-eyebrow">Transition Engine</div>
-                        <h2>Signal Changes</h2>
+                        <h2>Hype Signals</h2>
                     </div>
                 </div>
 
@@ -386,7 +386,7 @@
                 <div class="tv-eyebrow">Upgrade</div>
                 <h2>Unlock Pro Tools</h2>
                 <p>
-                    Get recommendation, hype type, RugCheck, and premium signal visibility.
+                    Get entry window, hype type, RugCheck, and premium hype signals.
                 </p>
                 <a href="{{ url_for('pricing') }}" class="tv-btn tv-btn-primary full-width">See Pro Plan</a>
             </div>

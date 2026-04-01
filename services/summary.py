@@ -17,8 +17,8 @@ def generate_fallback_summary(risk: dict, recommendation: str, facts: dict) -> s
     symbol_text = f" ({symbol})" if symbol else ""
 
     return (
-        f"{token_name}{symbol_text} shows {risk['level'].lower()} risk with a score of {risk['score']}. "
-        f"Momentum score is {momentum_score}, phase is {phase}, and hype type is {hype_type}. "
+        f"{token_name}{symbol_text} shows {risk['level'].lower()} collapse risk with a score of {risk['score']}. "
+        f"Hype velocity is {momentum_score}, hype phase is {phase}, and hype type is {hype_type}. "
         f"Liquidity is {liquidity}, 24h volume is {volume}, and token age is {age} minutes. "
         f"Key factors include: {reasons}."
     )
@@ -55,12 +55,13 @@ def generate_summary(
     }
 
     prompt = f"""
-You are writing a concise meme coin lifecycle report.
+You are writing a concise HypeScopeAI meme coin lifecycle report.
 
 Use only the facts provided.
 Do not promise profits.
 Do not invent missing data.
 Do not include any explicit trade recommendation words like ENTER, WAIT, or AVOID.
+Use the terms collapse probability, hype velocity, hype phase, and hype type naturally.
 Keep it concise and useful.
 Write:
 1. One short paragraph
@@ -85,7 +86,7 @@ Facts:
                 "content": [
                     {
                         "type": "input_text",
-                        "text": "You produce concise, evidence-based crypto lifecycle summaries. Never reveal explicit recommendation labels like ENTER, WAIT, or AVOID."
+                        "text": "You produce concise, evidence-based crypto lifecycle summaries for HypeScopeAI. Never reveal explicit recommendation labels like ENTER, WAIT, or AVOID."
                     }
                 ]
             },
