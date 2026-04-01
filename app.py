@@ -183,19 +183,11 @@ def downgrade_user_to_free(user, status="canceled"):
 
 
 def sync_user_plan_from_stripe(user):
-    """
-    Backup sync path:
-    1) use stored stripe_customer_id if present
-    2) otherwise search Stripe customers by email
-    3) list subscriptions for that customer
-    4) update local plan/status
-    """
     if not user or not app.config["STRIPE_SECRET_KEY"]:
         return
 
     customer_id = user.stripe_customer_id
 
-    # Try finding the Stripe customer by email if we don't have one yet
     if not customer_id and user.email:
         try:
             resp = requests.get(
@@ -220,7 +212,6 @@ def sync_user_plan_from_stripe(user):
     if not customer_id:
         return
 
-    # Get subscriptions for that customer
     try:
         resp = requests.get(
             "https://api.stripe.com/v1/subscriptions",
@@ -252,7 +243,6 @@ def sync_user_plan_from_stripe(user):
                 status=active_like.get("status", "active")
             )
         else:
-            # if there are subscriptions but none are active/trialing, downgrade
             if subs:
                 latest = subs[0]
                 user.stripe_subscription_id = latest.get("id")
@@ -261,6 +251,32 @@ def sync_user_plan_from_stripe(user):
                 db.session.commit()
     except Exception:
         pass
+
+
+def detect_tradingview_symbol(chain: str, symbol: str):
+    if not symbol:
+        return ""
+
+    symbol = symbol.upper().strip()
+
+    common_map = {
+        "BTC": "BINANCE:BTCUSDT",
+        "ETH": "BINANCE:ETHUSDT",
+        "SOL": "BINANCE:SOLUSDT",
+        "BNB": "BINANCE:BNBUSDT",
+        "XRP": "BINANCE:XRPUSDT",
+        "DOGE": "BINANCE:DOGEUSDT",
+        "ADA": "BINANCE:ADAUSDT",
+        "AVAX": "BINANCE:AVAXUSDT",
+        "LINK": "BINANCE:LINKUSDT",
+        "PEPE": "BINANCE:PEPEUSDT",
+        "SHIB": "BINANCE:SHIBUSDT",
+        "BONK": "BINANCE:BONKUSDT",
+        "WIF": "BINANCE:WIFUSDT",
+        "FLOKI": "BINANCE:FLOKIUSDT",
+    }
+
+    return common_map.get(symbol, "")
 
 
 def analyze_token(address: str, chain: str):
@@ -366,24 +382,24 @@ def build_signals(
 
     if old_risk_score is not None and new_risk_score is not None:
         if new_risk_score > old_risk_score:
-            signals.append(f"Risk increased from {old_risk_score} to {new_risk_score}")
+            signals.append(f"Collapse probability increased from {old_risk_score} to {new_risk_score}")
         elif new_risk_score < old_risk_score:
-            signals.append(f"Risk decreased from {old_risk_score} to {new_risk_score}")
+            signals.append(f"Collapse probability decreased from {old_risk_score} to {new_risk_score}")
 
     if old_recommendation and new_recommendation and old_recommendation != new_recommendation:
-        signals.append(f"Recommendation changed from {old_recommendation} to {new_recommendation}")
+        signals.append(f"Entry window changed from {old_recommendation} to {new_recommendation}")
 
     if old_phase and new_phase and old_phase != new_phase:
-        signals.append(f"Phase changed from {old_phase} to {new_phase}")
+        signals.append(f"Hype phase changed from {old_phase} to {new_phase}")
 
     if old_hype_type and new_hype_type and old_hype_type != new_hype_type:
         signals.append(f"Hype type changed from {old_hype_type} to {new_hype_type}")
 
     if old_momentum is not None and new_momentum is not None:
         if new_momentum > old_momentum:
-            signals.append(f"Momentum increased from {old_momentum} to {new_momentum}")
+            signals.append(f"Hype velocity increased from {old_momentum} to {new_momentum}")
         elif new_momentum < old_momentum:
-            signals.append(f"Momentum decreased from {old_momentum} to {new_momentum}")
+            signals.append(f"Hype velocity decreased from {old_momentum} to {new_momentum}")
 
     try:
         if old_price not in (None, "", "None") and new_price not in (None, "", "None"):
@@ -516,8 +532,6 @@ def logout():
 @login_required
 def profile():
     user = current_user()
-
-    # Stripe backup sync on page load
     sync_user_plan_from_stripe(user)
     user = current_user()
 
@@ -723,7 +737,7 @@ def analyze():
 
     if not is_pro(user):
         if free_analyses_remaining(user) <= 0:
-            flash("You’ve hit the free analysis limit. Upgrade to Pro for unlimited analyzations.")
+            flash("You’ve hit the free scan limit. Upgrade to Pro for unlimited scans.")
             return redirect(url_for("pricing"))
 
     chain = detect_chain(address)
@@ -732,6 +746,7 @@ def analyze():
         return render_template("report.html", error="Invalid address.")
 
     result = analyze_token(address, chain)
+    tradingview_symbol = detect_tradingview_symbol(chain, result["facts"]["symbol"])
 
     save_report(
         user_id=user.id,
@@ -766,6 +781,7 @@ def analyze():
         price_usd=result["facts"]["price_usd"],
         signals=None,
         show_premium=show_premium,
+        tradingview_symbol=tradingview_symbol,
         error=None
     )
 
@@ -919,6 +935,7 @@ def add_to_watchlist():
         db.session.add(item)
         db.session.commit()
 
+    flash("Token saved to watchlist.")
     return redirect(url_for("watchlist"))
 
 
@@ -930,6 +947,7 @@ def reanalyze(item_id):
 
     result = analyze_token(item.address, item.chain)
     new_price = str(result["facts"]["price_usd"]) if result["facts"]["price_usd"] is not None else ""
+    tradingview_symbol = detect_tradingview_symbol(item.chain, result["facts"]["symbol"])
 
     signals = build_signals(
         old_risk_score=item.last_risk_score,
@@ -986,6 +1004,7 @@ def reanalyze(item_id):
         price_usd=result["facts"]["price_usd"],
         signals=signals if show_premium else None,
         show_premium=show_premium,
+        tradingview_symbol=tradingview_symbol,
         error=None
     )
 
@@ -997,6 +1016,7 @@ def delete_watchlist(item_id):
     item = WatchlistItem.query.filter_by(id=item_id, user_id=user.id).first_or_404()
     db.session.delete(item)
     db.session.commit()
+    flash("Watchlist item removed.")
     return redirect(url_for("watchlist"))
 
 
